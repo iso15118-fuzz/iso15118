@@ -700,7 +700,7 @@ def get_exponent_value_repr(
             if int(value) == 0:
                 exponent = 0
             break
-    while not (min_limit <= value <= max_limit):
+    while not (min_limit <= value and value <= max_limit):
         if abs(value) >= 10:
             value /= 10
             exponent += 1
