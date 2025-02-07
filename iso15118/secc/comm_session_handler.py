@@ -233,8 +233,12 @@ class CommunicationSessionHandler:
         )
 
         logger.info("Communication session handler started")
-
+        self.list_of_tasks = [asyncio.create_task(task) for task in self.list_of_tasks]
         await wait_for_tasks(self.list_of_tasks)
+        if start_udp_server:
+            self.udp_server._transport.close()
+        self.tcp_server.server.close()
+        await self.tcp_server.server.wait_closed()
 
     def check_events(self) -> bool:
         result: bool = True
@@ -326,6 +330,10 @@ class CommunicationSessionHandler:
                         await self.end_current_session(
                             notification.peer_ip_address, notification.stop_action
                         )
+                        # for fuzzing
+                        for task in self.list_of_tasks:
+                            task.cancel()
+                        break
                     except KeyError:
                         pass
                 else:

@@ -1,8 +1,9 @@
 import asyncio
 import logging
 import sys
+import time
 
-import atheris
+import atheris  # type: ignore
 
 with atheris.instrument_imports():
     from iso15118.evcc import Config as EVCCConfig
@@ -37,6 +38,7 @@ async def main():
     evcc_config = EVCCConfig()
     evcc_config.load_envs()
     evcc_file_config = await load_from_file(evcc_config.ev_config_file_path)
+    evcc_file_config.charge_loop_delay_time = 0
 
     sim_evse_controller = SimEVSEController()
     await sim_evse_controller.set_status(ServiceStatus.STARTING)
@@ -55,18 +57,26 @@ async def main():
     )
 
 
-def run(data):
+def run(data: bytes):
     # TODO: set mutation list according to data
+    start_time = time.time()
+    logger.info("Running main")
     try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        logger.debug("program terminated manually")
-
-
-def main():
-    atheris.Setup(sys.argv, run)
-    atheris.Fuzz()
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(main())
+    finally:
+        pending = asyncio.all_tasks(loop)
+        for task in pending:
+            task.cancel()
+        loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
+        loop.run_until_complete(loop.shutdown_asyncgens())
+        loop.close()
+        asyncio.set_event_loop(None)
+    logger.info(f"Running main done, Time: {time.time() - start_time:.2f} s")
 
 
 if __name__ == "__main__":
-    main()
+    atheris.Setup(sys.argv, run)
+    atheris.Fuzz()
+    # run(None)

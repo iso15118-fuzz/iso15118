@@ -124,5 +124,7 @@ async def wait_for_tasks(
     for done_task in done:
         try:
             done_task.result()
+        except asyncio.CancelledError as e:
+            logger.info(f"Task was cancelled: {done_task.get_name()}")
         except Exception as e:
             logger.exception(e)
