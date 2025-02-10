@@ -182,7 +182,8 @@ class UDPServer(asyncio.DatagramProtocol):
             side of the connection.
         """
         reason = f". Reason: {exc}" if exc else ""
-        logger.exception(f"UDP server closed. {reason}")
+        if exc:
+            logger.exception(f"UDP server closed. {reason}")
         self.started = False
 
     def send(self, message: V2GTPMessage, addr: Tuple[str, int]):
