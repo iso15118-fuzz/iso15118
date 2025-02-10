@@ -14,8 +14,7 @@ with atheris.instrument_imports():
         ExificientEXICodec as EVCCExificientEXICodec,
     )
 
-atheris.FuzzInjector().dump()
-
+atheris.FuzzInjector().dump()  # 648 LOAD_FAST, 1124 LOAD_CONST
 
 from iso15118.secc import SECCHandler
 from iso15118.secc.controller.interface import ServiceStatus
@@ -57,8 +56,16 @@ async def main():
     )
 
 
-def run(data: bytes):
-    # TODO: set mutation list according to data
+def run(data: bytes = b""):
+    injector = atheris.FuzzInjector()
+    l: list[int] = injector.mutation_list
+    n = len(l)
+    l.clear()
+    fdp = atheris.FuzzedDataProvider(data)
+    for i in range(n):
+        value = fdp.ConsumeInt(4)
+        l.append(value)
+    logger.info(f"data length: {len(data)}, list length {len(l)} list {l}")
     start_time = time.time()
     logger.info("Running main")
     try:
@@ -79,4 +86,4 @@ def run(data: bytes):
 if __name__ == "__main__":
     atheris.Setup(sys.argv, run)
     atheris.Fuzz()
-    # run(None)
+    # run()

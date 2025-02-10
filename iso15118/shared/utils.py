@@ -128,3 +128,4 @@ async def wait_for_tasks(
             logger.info(f"Task was cancelled: {done_task.get_name()}")
         except Exception as e:
             logger.exception(e)
+            raise e
