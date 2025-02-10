@@ -3,10 +3,8 @@ import logging
 from typing import List, Optional
 
 from aiofile import async_open
-from pydantic import BaseModel, Field, validator
 
 from iso15118.shared.messages.enums import (
-    UINT_16_MAX,
     EnergyTransferModeEnum,
     Protocol,
     ServiceV20,
@@ -19,7 +17,7 @@ from iso15118.shared.utils import (
 logger = logging.getLogger(__name__)
 
 
-class EVCCConfig(BaseModel):
+class EVCCConfig:
     _default_protocols = [
         "DIN_SPEC_70121",
         "ISO_15118_2",
@@ -27,55 +25,32 @@ class EVCCConfig(BaseModel):
         "ISO_15118_20_DC",
     ]
     _default_supported_energy_services = ["AC"]
-    raw_supported_energy_services: List[str] = Field(
-        _default_supported_energy_services, max_items=4, alias="supportedEnergyServices"
-    )
-    supported_energy_services: List[ServiceV20] = None
-    is_cert_install_needed: bool = Field(False, alias="isCertInstallNeeded")
-    # Indicates the security level (either TCP (unencrypted) or TLS (encrypted))
-    # the EVCC shall send in the SDP request
-    use_tls: Optional[bool] = Field(True, alias="useTls")
-    # How often shall SDP (SECC Discovery Protocol) retries happen before reverting
-    # to using nominal duty cycle PWM-based charging?
-    sdp_retry_cycles: Optional[int] = Field(1, alias="sdpRetryCycles")
-    # For ISO 15118-20 only
-    # Maximum amount of contract certificates (and associated certificate chains)
-    # the EV can store. That value is used in the CertificateInstallationReq.
-    # Must be an integer between 0 and 65535, should be bigger than 0.
-    max_contract_certs: Optional[int] = Field(3, alias="maxContractCerts")
-    # Indicates whether or not the EVCC should always enforce a TLS-secured
-    # communication session.
-    # If True, the EVCC will only continue setting up a communication session if
-    # the SECC's SDP response has the Security field set
-    # to the enum value Security.TLS.
-    # If the USE_TLS setting is set to False and ENFORCE_TLS is set to True, then
-    # ENFORCE_TLS overrules USE_TLS.
-    enforce_tls: bool = Field(False, alias="enforceTls")
-    # Supported protocols, used for SupportedAppProtocol (SAP). The order in which
-    # the protocols are listed here determines the priority (i.e. first list entry
-    # the protocols are listed here determines the priority (i.e. first list entry
-    # has higher priority than second list entry). A list entry must be a member
-    # of the Protocol enum
-    raw_supported_protocols: Optional[List[str]] = Field(
-        _default_protocols, max_items=6, alias="supportedProtocols"
-    )
-    supported_protocols: Optional[List[Protocol]] = None
-    energy_transfer_mode: Optional[EnergyTransferModeEnum] = Field(
-        EnergyTransferModeEnum.AC_THREE_PHASE_CORE, alias="energyTransferMode"
-    )
-    # Indicates the maximum number of entries the EVCC supports within the
-    # sub-elements of a ScheduleTuple (e.g. PowerScheduleType and PriceRuleType in
-    # ISO 15118-20 as well as PMaxSchedule and SalesTariff in ISO 15118-2).
-    # The SECC must not transmit more entries than defined in this parameter.
-    max_supporting_points: Optional[int] = Field(1024, alias="maxSupportingPoints")
 
-    # charge cycle count
-    charge_loop_cycle: Optional[int] = Field(10, alias="chargeLoopCycle")
-    # charge loop cycle delay before next cycle
-    charge_loop_delay_time: Optional[int] = Field(5, alias="chargeLoopDelay")
+    def __init__(self, data: dict = None):
+        data = data or {}
+        self.raw_supported_energy_services: List[str] = data.get(
+            "supportedEnergyServices", self._default_supported_energy_services
+        )
+        self.supported_energy_services: List[ServiceV20] = []
+        self.is_cert_install_needed: bool = data.get("isCertInstallNeeded", False)
+        self.use_tls: Optional[bool] = data.get("useTls", True)
+        self.sdp_retry_cycles: Optional[int] = data.get("sdpRetryCycles", 1)
+        self.max_contract_certs: Optional[int] = data.get("maxContractCerts", 3)
+        self.enforce_tls: bool = data.get("enforceTls", False)
+        self.raw_supported_protocols: List[str] = data.get(
+            "supportedProtocols", self._default_protocols
+        )
+        self.supported_protocols: List[Protocol] = []
+        self.energy_transfer_mode: Optional[
+            EnergyTransferModeEnum
+        ] = data.get("energyTransferMode", EnergyTransferModeEnum.AC_THREE_PHASE_CORE)
+        self.max_supporting_points: Optional[int] = data.get("maxSupportingPoints", 1024)
+        self.charge_loop_cycle: Optional[int] = data.get("chargeLoopCycle", 10)
+        self.charge_loop_delay_time: Optional[int] = data.get("chargeLoopDelay", 5)
+
+        self.load_raw_values()
 
     def load_raw_values(self):
-        # conversion of list of strings to enum types.
         self.supported_energy_services = load_requested_energy_services(
             self.raw_supported_energy_services
         )
@@ -83,42 +58,15 @@ class EVCCConfig(BaseModel):
             self.raw_supported_protocols
         )
 
-    @validator("max_supporting_points", pre=True, always=True)
-    def check_max_supporting_points(cls, value):
-        if not 0 <= value <= 1024:
-            raise ValueError(
-                "Wrong range for max_supporting_points in config file. "
-                "Should be in [0..1024]"
-            )
-        return value
-
-    @validator("sdp_retry_cycles", pre=True, always=True)
-    def check_sdp_retry_cycle(cls, value):
-        if value < 0:
-            raise ValueError(
-                "Wrong range for sdp_retry_cycles in config file. " "Should be in [0..]"
-            )
-        return value
-
-    @validator("max_contract_certs", pre=True, always=True)
-    def check_max_contract_certs(cls, value):
-        if not 1 < value < UINT_16_MAX:
-            raise ValueError(
-                "Wrong range for max_contract_certs in config file. "
-                "Should be in [1..UINT_16_MAX]"
-            )
-        return value
-
 
 async def load_from_file(file_name: str) -> EVCCConfig:
     try:
         async with async_open(file_name, "r") as f:
             json_content = await f.read()
             data = json.loads(json_content)
-            ev_config = EVCCConfig(**data)
-            ev_config.load_raw_values()
+            ev_config = EVCCConfig(data)
             logger.info("EVCC Settings")
-            for key, value in ev_config.dict().items():
+            for key, value in vars(ev_config).items():
                 if not key.startswith("raw"):
                     logger.info(f"{key:30}: {value}")
         return ev_config
