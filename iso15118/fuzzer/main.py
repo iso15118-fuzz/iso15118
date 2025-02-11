@@ -13,25 +13,19 @@ with atheris.instrument_imports():
     from iso15118.shared.exificient_exi_codec import (
         ExificientEXICodec as EVCCExificientEXICodec,
     )
-
-atheris.FuzzInjector().dump()  # 648 LOAD_FAST, 1124 LOAD_CONST
-
-from iso15118.secc import SECCHandler
-from iso15118.secc.controller.interface import ServiceStatus
-from iso15118.secc.controller.simulator import SimEVSEController
-from iso15118.secc.secc_settings import Config as SECCConfig
-from iso15118.shared.exificient_exi_codec import (
-    ExificientEXICodec as SECCExificientEXICodec,
-)
+atheris.FuzzInjector().disable()
+with atheris.instrument_imports():
+    from iso15118.secc import SECCHandler
+    from iso15118.secc.controller.interface import ServiceStatus
+    from iso15118.secc.controller.simulator import SimEVSEController
+    from iso15118.secc.secc_settings import Config as SECCConfig
+    from iso15118.shared.exificient_exi_codec import (
+        ExificientEXICodec as SECCExificientEXICodec,
+    )
 
 logger = logging.getLogger(__name__)
 
-
 async def main():
-    """
-    Entrypoint function that starts the ISO 15118 code running on
-    the EVCC (EV Communication Controller)
-    """
     secc_config = SECCConfig()
     secc_config.load_envs()
     evcc_config = EVCCConfig()
@@ -62,8 +56,11 @@ def run(data: bytes = b""):
     n = len(l)
     l.clear()
     fdp = atheris.FuzzedDataProvider(data)
+    # import random
+    # random.seed(fdp.ConsumeInt(4))
     for i in range(n):
         value = fdp.ConsumeInt(4)
+        # value = random.randint(0, 255)
         l.append(value)
     logger.info(f"data length: {len(data)}, list length {len(l)} list {l}")
     start_time = time.time()
@@ -84,6 +81,9 @@ def run(data: bytes = b""):
 
 
 if __name__ == "__main__":
-    atheris.Setup(sys.argv, run)
-    atheris.Fuzz()
-    # run()
+    atheris.FuzzInjector().dump()  # 648 LOAD_FAST, 1124 LOAD_CONST
+    if len(sys.argv) > 1 and sys.argv[1] == "--run_once":
+        run()
+    else:
+        atheris.Setup(sys.argv, run)
+        atheris.Fuzz()

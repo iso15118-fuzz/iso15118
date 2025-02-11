@@ -233,7 +233,9 @@ class CommunicationSessionHandler:
         )
 
         logger.info("Communication session handler started")
-        self.list_of_tasks = [asyncio.create_task(task) for task in self.list_of_tasks]
+        self.list_of_tasks = [
+            asyncio.create_task(task, name=task.__name__) for task in self.list_of_tasks
+        ]
         await wait_for_tasks(self.list_of_tasks)
         if start_udp_server:
             self.udp_server._transport.close()
