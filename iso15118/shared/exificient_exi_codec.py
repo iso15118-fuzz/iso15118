@@ -15,7 +15,15 @@ def compare_messages(json_to_encode, decoded_json):
 
 
 class ExificientEXICodec(IEXICodec):
-    def __init__(self):
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance._init_gateway()
+        return cls._instance
+
+    def _init_gateway(self):
         from py4j.java_gateway import JavaGateway
 
         logging.getLogger("py4j").setLevel(logging.CRITICAL)
