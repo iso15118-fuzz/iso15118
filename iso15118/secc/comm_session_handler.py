@@ -236,11 +236,14 @@ class CommunicationSessionHandler:
         self.list_of_tasks = [
             asyncio.create_task(task, name=task.__name__) for task in self.list_of_tasks
         ]
-        await wait_for_tasks(self.list_of_tasks)
-        if start_udp_server:
-            self.udp_server._transport.close()
-        self.tcp_server.server.close()
-        await self.tcp_server.server.wait_closed()
+        try:
+            await wait_for_tasks(self.list_of_tasks)
+        finally:
+            if start_udp_server:
+                self.udp_server._transport.close()
+            if self.tcp_server and self.tcp_server.server:
+                self.tcp_server.server.close()
+                await self.tcp_server.server.wait_closed()
 
     def check_events(self) -> bool:
         result: bool = True
