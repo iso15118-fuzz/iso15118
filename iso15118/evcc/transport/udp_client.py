@@ -178,7 +178,7 @@ class UDPClient(DatagramProtocol):
         except asyncio.TimeoutError as e:
             logger.warning(
                 f"A {e.__class__.__name__} occurred. Waited "
-                f"for {Timeouts.SDP_REQ} s after sending an "
+                f"for {float(Timeouts.SDP_REQ)} s after sending an "
                 f"SDPRequest"
             )
             self._session_handler_queue.put_nowait(ReceiveTimeoutNotification())
