@@ -40,7 +40,7 @@ class ExificientEXICodec(IEXICodec):
         Calls the Exificient EXI implmentation to encode input json.
         Returns a byte[] for the input message if conversion was successful.
         """
-        exi = self.exi_codec.encode(message, namespace)
+        exi: bytes = self.exi_codec.encode(message, namespace)
 
         if exi is None:
             raise Exception(self.exi_codec.get_last_encoding_error())
@@ -52,7 +52,7 @@ class ExificientEXICodec(IEXICodec):
         Returns a JSON representation of the input EXI stream if the conversion
         was successful.
         """
-        decoded_message = self.exi_codec.decode(stream, namespace)
+        decoded_message: str = self.exi_codec.decode(stream, namespace)
 
         if decoded_message is None:
             raise Exception(self.exi_codec.get_last_decoding_error())
