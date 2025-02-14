@@ -393,12 +393,12 @@ class V2GCommunicationSession(SessionStateMachine):
             terminate_or_pause = SessionStopAction.TERMINATE
 
         logger.info(
-            f"The data link will {terminate_or_pause} in 1 second and "
-            "the TCP connection will close in 1 second. "
+            f"The data link will {terminate_or_pause} in 0.5 seconds and "
+            "the TCP connection will close in 0.5 seconds. "
         )
         logger.info(f"Reason: {reason}")
 
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.5)
         # Signal data link layer to either terminate or pause the data
         # link connection
         if hasattr(self.comm_session, "evse_controller"):
@@ -408,7 +408,7 @@ class V2GCommunicationSession(SessionStateMachine):
         elif hasattr(self.comm_session, "ev_controller"):
             await self.comm_session.ev_controller.enable_charging(False)
         logger.info(f"{terminate_or_pause}d the data link")
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.5)
         try:
             self.writer.close()
             await self.writer.wait_closed()
