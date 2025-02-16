@@ -10,20 +10,17 @@ with atheris.instrument_imports():
     from iso15118.evcc import EVCCHandler
     from iso15118.evcc.controller.simulator import SimEVController
     from iso15118.evcc.evcc_config import load_from_file
-    from iso15118.shared.exificient_exi_codec import (
-        ExificientEXICodec as EVCCExificientEXICodec,
-    )
 atheris.FuzzInjector().disable()
 with atheris.instrument_imports():
     from iso15118.secc import SECCHandler
     from iso15118.secc.controller.interface import ServiceStatus
     from iso15118.secc.controller.simulator import SimEVSEController
     from iso15118.secc.secc_settings import Config as SECCConfig
-    from iso15118.shared.exificient_exi_codec import (
-        ExificientEXICodec as SECCExificientEXICodec,
-    )
+
+    from iso15118.shared.exificient_exi_codec import ExificientEXICodec
 
 logger = logging.getLogger(__name__)
+
 
 async def main():
     secc_config = SECCConfig()
@@ -37,14 +34,14 @@ async def main():
     await sim_evse_controller.set_status(ServiceStatus.STARTING)
     await asyncio.gather(
         SECCHandler(
-            exi_codec=SECCExificientEXICodec(),
+            exi_codec=ExificientEXICodec(),
             evse_controller=sim_evse_controller,
             config=secc_config,
         ).start(secc_config.iface),
         EVCCHandler(
             evcc_config=evcc_file_config,
             iface=evcc_config.iface,
-            exi_codec=EVCCExificientEXICodec(),
+            exi_codec=ExificientEXICodec(),
             ev_controller=SimEVController(evcc_file_config),
         ).start(),
     )
@@ -56,19 +53,27 @@ def run(data: bytes = b""):
     n = len(l)
     l.clear()
     fdp = atheris.FuzzedDataProvider(data)
-    # import random
+    import random
+
     # random.seed(fdp.ConsumeInt(4))
+    random.seed(0)
     for i in range(n):
-        value = fdp.ConsumeInt(4)
-        # value = random.randint(0, 255)
+        value = 0
+        # value = fdp.ConsumeInt(4)
+        value = random.randint(0, 16)
         l.append(value)
     logger.info(f"data length: {len(data)}, list length {len(l)} list {l}")
     start_time = time.time()
     logger.info("Running main")
+    timeout = 10
     try:
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        loop.run_until_complete(main())
+        loop.run_until_complete(asyncio.wait_for(main(), timeout=timeout))
+    except asyncio.TimeoutError:
+        logger.error(f"Main function timed out after {timeout} seconds")
+    except Exception as e:
+        raise e
     finally:
         pending = asyncio.all_tasks(loop)
         for task in pending:
@@ -78,6 +83,7 @@ def run(data: bytes = b""):
         loop.close()
         asyncio.set_event_loop(None)
     logger.info(f"Running main done, Time: {time.time() - start_time:.2f} s")
+    print(f"Running main done, Time: {time.time() - start_time:.2f} s")
 
 
 if __name__ == "__main__":
