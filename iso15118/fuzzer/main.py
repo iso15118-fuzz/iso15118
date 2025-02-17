@@ -21,15 +21,14 @@ with atheris.instrument_imports():
 
 logger = logging.getLogger(__name__)
 
+secc_config = SECCConfig()
+secc_config.load_envs()
+evcc_config = EVCCConfig()
+evcc_config.load_envs()
+evcc_file_config = load_from_file(evcc_config.ev_config_file_path)
+evcc_file_config.charge_loop_delay_time = 0
 
 async def main():
-    secc_config = SECCConfig()
-    secc_config.load_envs()
-    evcc_config = EVCCConfig()
-    evcc_config.load_envs()
-    evcc_file_config = await load_from_file(evcc_config.ev_config_file_path)
-    evcc_file_config.charge_loop_delay_time = 0
-
     sim_evse_controller = SimEVSEController()
     await sim_evse_controller.set_status(ServiceStatus.STARTING)
     await asyncio.gather(
@@ -55,17 +54,17 @@ def run(data: bytes = b""):
     fdp = atheris.FuzzedDataProvider(data)
     import random
 
-    # random.seed(fdp.ConsumeInt(4))
-    random.seed(0)
+    random.seed(fdp.ConsumeInt(4))
+    # random.seed(0)
     for i in range(n):
         value = 0
         # value = fdp.ConsumeInt(4)
-        value = random.randint(0, 16)
+        value = random.randint(0, 256)
         l.append(value)
     logger.info(f"data length: {len(data)}, list length {len(l)} list {l}")
     start_time = time.time()
     logger.info("Running main")
-    timeout = 10
+    timeout = 9
     try:
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)

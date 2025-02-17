@@ -60,13 +60,13 @@ class ECDHCurve(str, Enum):
 class EMAIDList(BaseModel):
     """See Annex C.1 in ISO 15118-20"""
 
-    emaids: List[Identifier] = Field(..., max_items=8, alias="EMAID")
+    emaids: List[Identifier] = Field(..., alias="EMAID")
 
 
 class SubCertificates(BaseModel):
     """A list of DER encoded X.509 certificates"""
 
-    certificates: List[Certificate] = Field(..., max_items=3, alias="Certificate")
+    certificates: List[Certificate] = Field(..., alias="Certificate")
 
 
 class CertificateChain(BaseModel):
@@ -74,7 +74,7 @@ class CertificateChain(BaseModel):
 
     # Note that the type here must be bytes and not Certificate, otherwise we
     # end up with a json structure that does not match the XSD schema
-    certificate: bytes = Field(..., max_length=800, alias="Certificate")
+    certificate: bytes = Field(..., alias="Certificate")
     sub_certificates: SubCertificates = Field(None, alias="SubCertificates")
 
 
@@ -83,10 +83,10 @@ class SignedCertificateChain(BaseModel):
 
     # 'Id' is actually an XML attribute, but JSON (our serialisation method)
     # doesn't have attributes. The EXI codec has to en-/decode accordingly.
-    id: str = Field(..., max_length=255, alias="Id")
+    id: str = Field(..., alias="Id")
     # Note that the type here must be bytes and not Certificate, otherwise we
     # end up with a json structure that does not match the XSD schema
-    certificate: bytes = Field(..., max_length=800, alias="Certificate")
+    certificate: bytes = Field(..., alias="Certificate")
     sub_certificates: SubCertificates = Field(None, alias="SubCertificates")
 
     def __str__(self):
@@ -98,20 +98,20 @@ class ContractCertificateChain(BaseModel):
 
     # Note that the type here must be bytes and not Certificate, otherwise we
     # end up with a json structure that does not match the XSD schema
-    certificate: bytes = Field(..., max_length=800, alias="Certificate")
+    certificate: bytes = Field(..., alias="Certificate")
     sub_certificates: SubCertificates = Field(..., alias="SubCertificates")
 
 
 class SessionSetupReq(V2GRequest):
     """See section 8.3.4.3.1.1 in ISO 15118-20"""
 
-    evcc_id: str = Field(..., max_length=255, alias="EVCCID")
+    evcc_id: str = Field(..., alias="EVCCID")
 
 
 class SessionSetupRes(V2GResponse):
     """See section 8.3.4.3.1.2 in ISO 15118-20"""
 
-    evse_id: str = Field(..., max_length=255, alias="EVSEID")
+    evse_id: str = Field(..., alias="EVSEID")
 
 
 class AuthorizationSetupReq(V2GRequest):
@@ -126,10 +126,10 @@ class PnCAuthSetupResParams(BaseModel):
     """See section 8.3.4.3.2.1 in ISO 15118-20"""
 
     gen_challenge: bytes = Field(
-        ..., min_length=16, max_length=16, alias="GenChallenge"
+        ..., alias="GenChallenge"
     )
     supported_providers: List[ProviderID] = Field(
-        None, max_items=128, alias="SupportedProviders"
+        None, alias="SupportedProviders"
     )
 
 
@@ -141,7 +141,7 @@ class AuthorizationSetupRes(V2GResponse):
     """See section 8.3.4.3.2.2 in ISO 15118-20"""
 
     auth_services: List[AuthEnum] = Field(
-        ..., max_items=2, alias="AuthorizationServices"
+        ..., alias="AuthorizationServices"
     )
     cert_install_service: bool = Field(..., alias="CertificateInstallationService")
     pnc_as_res: PnCAuthSetupResParams = Field(None, alias="PnC_ASResAuthorizationMode")
@@ -180,9 +180,9 @@ class PnCAuthReqParams(BaseModel):
 
     # 'Id' is actually an XML attribute, but JSON (our serialisation method)
     # doesn't have attributes. The EXI codec has to en-/decode accordingly.
-    id: str = Field(None, max_length=255, alias="Id")
+    id: str = Field(None, alias="Id")
     gen_challenge: bytes = Field(
-        ..., min_length=16, max_length=16, alias="GenChallenge"
+        ..., alias="GenChallenge"
     )
     contract_cert_chain: ContractCertificateChain = Field(
         ..., alias="ContractCertificateChain"
@@ -242,7 +242,7 @@ class AuthorizationRes(V2GResponse):
 class ServiceIDList(BaseModel):
     """See section 8.3.5.3.29 in ISO 15118-20"""
 
-    service_ids: List[int] = Field(..., max_items=16, alias="ServiceID")
+    service_ids: List[int] = Field(..., alias="ServiceID")
 
 
 class ServiceDiscoveryReq(V2GRequest):
@@ -261,7 +261,7 @@ class Service(BaseModel):
 class ServiceList(BaseModel):
     """See section 8.3.5.3.2 in ISO 15118-20"""
 
-    services: List[Service] = Field(..., max_items=8, alias="Service")
+    services: List[Service] = Field(..., alias="Service")
 
 
 class ServiceDiscoveryRes(V2GResponse):
@@ -331,13 +331,13 @@ class ParameterSet(BaseModel):
     """See section 8.3.5.3.22 in ISO 15118-20"""
 
     id: int = Field(..., alias="ParameterSetID")
-    parameters: List[Parameter] = Field(..., max_items=32, alias="Parameter")
+    parameters: List[Parameter] = Field(..., alias="Parameter")
 
 
 class ServiceParameterList(BaseModel):
     """See section 8.3.5.3.21 in ISO 15118-20"""
 
-    parameter_sets: List[ParameterSet] = Field(..., max_items=32, alias="ParameterSet")
+    parameter_sets: List[ParameterSet] = Field(..., alias="ParameterSet")
 
 
 class ServiceDetailRes(V2GResponse):
@@ -360,7 +360,7 @@ class SelectedServiceList(BaseModel):
     """See section 8.3.5.3.24 in ISO 15118-20"""
 
     selected_services: List[SelectedService] = Field(
-        ..., max_items=16, alias="SelectedService"
+        ..., alias="SelectedService"
     )
 
 
@@ -388,7 +388,7 @@ class EVPowerScheduleEntryList(BaseModel):
     """See section 8.3.5.3.43 in ISO 15118-20"""
 
     entries: List[EVPowerScheduleEntry] = Field(
-        ..., max_items=1024, alias="EVPowerScheduleEntry"
+        ..., alias="EVPowerScheduleEntry"
     )
 
 
@@ -412,14 +412,14 @@ class EVPriceRuleStack(BaseModel):
     """See section 8.3.5.3.47 in ISO 15118-20"""
 
     duration: int = Field(..., alias="Duration")
-    ev_price_rules: List[EVPriceRule] = Field(..., max_items=8, alias="EVPriceRule")
+    ev_price_rules: List[EVPriceRule] = Field(..., alias="EVPriceRule")
 
 
 class EVPriceRuleStackList(BaseModel):
     """See section 8.3.5.3.46 in ISO 15118-20"""
 
     ev_price_rule_stacks: List[EVPriceRuleStack] = Field(
-        ..., max_items=1024, alias="EVPriceRuleStack"
+        ..., alias="EVPriceRuleStack"
     )
 
 
@@ -427,8 +427,8 @@ class EVAbsolutePriceSchedule(BaseModel):
     """See section 8.3.5.3.45 in ISO 15118-20"""
 
     time_anchor: int = Field(..., alias="TimeAnchor")
-    currency: str = Field(..., max_length=3, alias="Currency")
-    price_algorithm: str = Field(..., max_length=255, alias="PriceAlgorithm")
+    currency: str = Field(..., alias="Currency")
+    price_algorithm: str = Field(..., alias="PriceAlgorithm")
     ev_price_rule_stacks: EVPriceRuleStackList = Field(..., alias="EVPriceRuleStacks")
 
 
@@ -444,7 +444,7 @@ class EVEnergyOffer(BaseModel):
 class ScheduledScheduleExchangeReqParams(BaseModel):
     """See section 8.3.5.3.14 in ISO 15118-20"""
 
-    departure_time: int = Field(None, ge=0, le=UINT_32_MAX, alias="DepartureTime")
+    departure_time: int = Field(None, alias="DepartureTime")
     ev_target_energy_request: RationalNumber = Field(
         None, alias="EVTargetEnergyRequest"
     )
@@ -456,11 +456,11 @@ class ScheduledScheduleExchangeReqParams(BaseModel):
 class DynamicScheduleExchangeReqParams(BaseModel):
     """See section 8.3.5.3.13 in ISO 15118-20"""
 
-    departure_time: int = Field(..., ge=0, le=UINT_32_MAX, alias="DepartureTime")
+    departure_time: int = Field(..., alias="DepartureTime")
     # XSD type byte with value range [0..100]
-    min_soc: int = Field(None, ge=0, le=100, alias="MinimumSOC")
+    min_soc: int = Field(None, alias="MinimumSOC")
     # XSD type byte with value range [0..100]
-    target_soc: int = Field(None, ge=0, le=100, alias="TargetSOC")
+    target_soc: int = Field(None, alias="TargetSOC")
     ev_target_energy_request: RationalNumber = Field(..., alias="EVTargetEnergyRequest")
     ev_max_energy_request: RationalNumber = Field(..., alias="EVMaximumEnergyRequest")
     ev_min_energy_request: RationalNumber = Field(..., alias="EVMinimumEnergyRequest")
@@ -499,7 +499,7 @@ class ScheduleExchangeReq(V2GRequest):
     """See section 8.3.4.3.7.2 in ISO 15118-20"""
 
     max_supporting_points: int = Field(
-        ..., ge=12, le=1024, alias="MaximumSupportingPoints"
+        ..., alias="MaximumSupportingPoints"
     )
     scheduled_params: ScheduledScheduleExchangeReqParams = Field(
         None, alias="Scheduled_SEReqControlMode"
@@ -546,7 +546,7 @@ class PowerScheduleEntryList(BaseModel):
     """See section 8.3.5.3.19 in ISO 15118-20"""
 
     entries: List[PowerScheduleEntry] = Field(
-        ..., max_items=1024, alias="PowerScheduleEntry"
+        ..., alias="PowerScheduleEntry"
     )
 
 
@@ -572,16 +572,16 @@ class PriceSchedule(BaseModel):
 class PriceLevelScheduleEntry(BaseModel):
     """See section 8.3.5.3.64 in ISO 15118-20"""
 
-    duration: int = Field(..., ge=0, le=UINT_32_MAX, alias="Duration")
+    duration: int = Field(..., alias="Duration")
     # XSD type unsignedByte with value range [0..255]
-    price_level: int = Field(..., ge=0, le=UINT_8_MAX, alias="PriceLevel")
+    price_level: int = Field(..., alias="PriceLevel")
 
 
 class PriceLevelScheduleEntryList(BaseModel):
     """See section 8.3.5.3.63 in ISO 15118-20"""
 
     entries: List[PriceLevelScheduleEntry] = Field(
-        ..., max_items=1024, alias="PriceLevelScheduleEntry"
+        ..., alias="PriceLevelScheduleEntry"
     )
 
 
@@ -590,9 +590,9 @@ class PriceLevelSchedule(PriceSchedule):
 
     # 'Id' is actually an XML attribute, but JSON (our serialisation method)
     # doesn't have attributes. The EXI codec has to en-/decode accordingly.
-    id: str = Field(None, max_length=255, alias="Id")
+    id: str = Field(None, alias="Id")
     # XSD type unsignedByte with value range [0..255]
-    num_price_levels: int = Field(..., ge=0, le=UINT_8_MAX, alias="NumberOfPriceLevels")
+    num_price_levels: int = Field(..., alias="NumberOfPriceLevels")
     schedule_entries: PriceLevelScheduleEntryList = Field(
         ..., alias="PriceLevelScheduleEntries"
     )
@@ -614,7 +614,7 @@ class TaxRule(BaseModel):
 class TaxRuleList(BaseModel):
     """See section 8.3.5.3.50 in ISO 15118-20"""
 
-    tax_rule: List[TaxRule] = Field(..., max_items=10, alias="TaxRule")
+    tax_rule: List[TaxRule] = Field(..., alias="TaxRule")
 
 
 class PriceRule(BaseModel):
@@ -622,13 +622,13 @@ class PriceRule(BaseModel):
 
     energy_fee: RationalNumber = Field(..., alias="EnergyFee")
     parking_fee: RationalNumber = Field(None, alias="ParkingFee")
-    parking_fee_period: int = Field(None, le=UINT_32_MAX, alias="ParkingFeePeriod")
+    parking_fee_period: int = Field(None, alias="ParkingFeePeriod")
     carbon_dioxide_emission: int = Field(
         None, le=UINT_16_MAX, alias="CarbonDioxideEmission"
     )
     # XSD type unsignedByte with value range [0..255]
     renewable_energy_percentage: int = Field(
-        None, ge=0, le=255, alias="RenewableGenerationPercentage"
+        None, alias="RenewableGenerationPercentage"
     )
     power_range_start: RationalNumber = Field(..., alias="PowerRangeStart")
 
@@ -636,15 +636,15 @@ class PriceRule(BaseModel):
 class PriceRuleStack(BaseModel):
     """See section 8.3.5.3.53 in ISO 15118-20"""
 
-    duration: int = Field(..., ge=0, le=UINT_32_MAX, alias="Duration")
-    price_rules: List[PriceRule] = Field(..., max_items=8, alias="PriceRule")
+    duration: int = Field(..., alias="Duration")
+    price_rules: List[PriceRule] = Field(..., alias="PriceRule")
 
 
 class PriceRuleStackList(BaseModel):
     """See section 8.3.5.3.52 in ISO 15118-20"""
 
     price_rule_stacks: List[PriceRuleStack] = Field(
-        ..., max_items=1024, alias="PriceRuleStack"
+        ..., alias="PriceRuleStack"
     )
 
 
@@ -652,19 +652,19 @@ class OverstayRule(BaseModel):
     """See section 8.3.5.3.56 in ISO 15118-20"""
 
     description: Description = Field(None, alias="OverstayRuleDescription")
-    start_time: int = Field(..., ge=0, le=UINT_32_MAX, alias="StartTime")
+    start_time: int = Field(..., alias="StartTime")
     fee: RationalNumber = Field(..., alias="OverstayFee")
-    fee_period: int = Field(..., ge=0, le=UINT_32_MAX, alias="OverstayFeePeriod")
+    fee_period: int = Field(..., alias="OverstayFeePeriod")
 
 
 class OverstayRuleList(BaseModel):
     """See section 8.3.5.3.55 in ISO 15118-20"""
 
     time_threshold: int = Field(
-        None, ge=0, le=UINT_32_MAX, alias="OverstayTimeThreshold"
+        None, alias="OverstayTimeThreshold"
     )
     power_threshold: RationalNumber = Field(None, alias="OverstayPowerThreshold")
-    rules: List[OverstayRule] = Field(..., max_items=5, alias="OverstayRule")
+    rules: List[OverstayRule] = Field(..., alias="OverstayRule")
 
 
 class AdditionalService(BaseModel):
@@ -678,7 +678,7 @@ class AdditionalServiceList(BaseModel):
     """See section 8.3.5.3.57 in ISO 15118-20"""
 
     additional_services: List[AdditionalService] = Field(
-        ..., max_items=5, alias="AdditionalService"
+        ..., alias="AdditionalService"
     )
 
 
@@ -688,9 +688,9 @@ class AbsolutePriceSchedule(PriceSchedule):
     # 'Id' is actually an XML attribute, but JSON (our serialisation method)
     # doesn't have attributes. The EXI codec has to en-/decode accordingly.
     id: str = Field(None, alias="Id")
-    currency: str = Field(..., max_length=3, alias="Currency")
-    language: str = Field(..., max_length=3, alias="Language")
-    price_algorithm: str = Field(..., max_length=255, alias="PriceAlgorithm")
+    currency: str = Field(..., alias="Currency")
+    language: str = Field(..., alias="Language")
+    price_algorithm: str = Field(..., alias="PriceAlgorithm")
     min_cost: RationalNumber = Field(None, alias="MinimumCost")
     max_cost: RationalNumber = Field(None, alias="MaximumCost")
     tax_rules: TaxRuleList = Field(None, alias="TaxRules")
@@ -784,18 +784,18 @@ class ScheduledScheduleExchangeResParams(BaseModel):
     """See section 8.3.5.3.16 in ISO 15118-20"""
 
     schedule_tuples: List[ScheduleTuple] = Field(
-        ..., max_items=3, alias="ScheduleTuple"
+        ..., alias="ScheduleTuple"
     )
 
 
 class DynamicScheduleExchangeResParams(BaseModel):
     """See section 8.3.5.3.15 in ISO 15118-20"""
 
-    departure_time: int = Field(None, ge=0, le=UINT_32_MAX, alias="DepartureTime")
+    departure_time: int = Field(None, alias="DepartureTime")
     # XSD type byte with value range [0..100]
-    min_soc: int = Field(None, ge=0, le=100, alias="MinimumSOC")
+    min_soc: int = Field(None, alias="MinimumSOC")
     # XSD type byte with value range [0..100]
-    target_soc: int = Field(None, ge=0, le=100, alias="TargetSOC")
+    target_soc: int = Field(None, alias="TargetSOC")
     price_level_schedule: PriceLevelSchedule = Field(None, alias="PriceLevelSchedule")
     absolute_price_schedule: AbsolutePriceSchedule = Field(
         None, alias="AbsolutePriceSchedule"
@@ -876,7 +876,7 @@ class EVPowerProfileEntryList(BaseModel):
     """See section 8.3.5.3.10 in ISO 15118-20"""
 
     entries: List[PowerScheduleEntry] = Field(
-        ..., max_items=2048, alias="EVPowerProfileEntry"
+        ..., alias="EVPowerProfileEntry"
     )
 
 
@@ -1022,8 +1022,8 @@ class SignedMeteringData(BaseModel):
 
     # 'Id' is actually an XML attribute, but JSON (our serialisation method)
     # doesn't have attributes. The EXI codec has to en-/decode accordingly.
-    id: str = Field(..., max_length=255, alias="Id")
-    session_id: str = Field(..., max_length=16, alias="SessionID")
+    id: str = Field(..., alias="Id")
+    session_id: str = Field(..., alias="SessionID")
     meter_info: MeterInfo = Field(..., alias="MeterInfo")
     receipt: Receipt = Field(None, alias="Receipt")
     scheduled_smart_meter_data: ScheduledSignedMeterData = Field(
@@ -1102,7 +1102,7 @@ class SessionStopReq(V2GRequest):
     charging_session: ChargingSession = Field(..., alias="ChargingSession")
     ev_termination_code: Name = Field(None, alias="EVTerminationCode")
     ev_termination_explanation: str = Field(
-        None, max_length=160, alias="EVTerminationExplanation"
+        None, alias="EVTerminationExplanation"
     )
 
 
@@ -1121,7 +1121,7 @@ class CertificateInstallationReq(V2GRequest):
     )
     # XSD type unsignedShort (16 bit integer) with value range [0..65535]
     max_contract_cert_chains: int = Field(
-        ..., ge=0, le=UINT_16_MAX, alias="MaximumContractCertificateChains"
+        ..., le=UINT_16_MAX, alias="MaximumContractCertificateChains"
     )
     prioritized_emaids: EMAIDList = Field(None, alias="PrioritizedEMAIDs")
 
@@ -1131,20 +1131,20 @@ class SignedInstallationData(BaseModel):
 
     # 'Id' is actually an XML attribute, but JSON (our serialisation method)
     # doesn't have attributes. The EXI codec has to en-/decode accordingly.
-    id: str = Field(..., max_length=255, alias="Id")
+    id: str = Field(..., alias="Id")
     contract_cert_chain: ContractCertificateChain = Field(
         ..., alias="ContractCertificateChain"
     )
     ecdh_curve: ECDHCurve = Field(..., alias="ECDHCurve")
-    dh_public_key: bytes = Field(..., max_length=133, alias="DHPublicKey")
+    dh_public_key: bytes = Field(..., alias="DHPublicKey")
     secp521_encrypted_private_key: bytes = Field(
-        None, min_length=94, max_length=94, alias="SECP521_EncryptedPrivateKey"
+        None, alias="SECP521_EncryptedPrivateKey"
     )
     x448_encrypted_private_key: bytes = Field(
-        None, min_length=84, max_length=84, alias="X448_EncryptedPrivateKey"
+        None, alias="X448_EncryptedPrivateKey"
     )
     tpm_encrypted_private_key: bytes = Field(
-        None, min_length=209, max_length=209, alias="TPM_EncryptedPrivateKey"
+        None, alias="TPM_EncryptedPrivateKey"
     )
 
     @root_validator(pre=True)
@@ -1185,7 +1185,7 @@ class CertificateInstallationRes(V2GResponse):
     )
     # XSD type unsignedByte with value range [0..255]
     remaining_contract_cert_chains: int = Field(
-        ..., ge=0, le=255, alias="RemainingContractCertificateChains"
+        ..., alias="RemainingContractCertificateChains"
     )
 
 

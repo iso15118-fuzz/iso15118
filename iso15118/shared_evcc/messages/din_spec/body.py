@@ -75,7 +75,7 @@ class SessionSetupReq(BodyBase):
     """Refer Table 29 under section 9.4.1.2.2"""
     # XSD type hexBinary with max 8 bytes
     # (Spec is quite unclear here, but data from field show that 8bytes are used)
-    evcc_id: str = Field(..., max_length=16, alias="EVCCID")
+    evcc_id: str = Field(..., alias="EVCCID")
 
     @validator("evcc_id")
     def check_sessionid_is_hexbinary(cls, value):
@@ -124,7 +124,7 @@ class SessionSetupRes(Response):
      as “0x49 0xA8 0x9A 0x63 0x60”.
     """
 
-    evse_id: str = Field(..., min_length=2, max_length=32, alias="EVSEID")
+    evse_id: str = Field(..., alias="EVSEID")
     datetime_now: int = Field(None, alias="DateTimeNow")
 
 
@@ -136,7 +136,7 @@ class ServiceDiscoveryReq(BodyBase):
     it shall always contain the value "EVCharging"
     """
 
-    service_scope: str = Field(None, max_length=32, alias="ServiceScope")
+    service_scope: str = Field(None, alias="ServiceScope")
     service_category: ServiceCategory = Field(None, alias="ServiceCategory")
 
 

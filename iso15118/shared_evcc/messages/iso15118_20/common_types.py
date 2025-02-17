@@ -36,7 +36,7 @@ Certificate: TypeAlias = conbytes(max_length=1600)  # type: ignore
 # identifierType
 Identifier: TypeAlias = constr(max_length=255)  # type: ignore
 # numericIDType
-NumericID: TypeAlias = conint(ge=1, le=UINT_32_MAX)  # type: ignore
+NumericID: TypeAlias = conint(ge=1)  # type: ignore
 # nameType
 Name: TypeAlias = constr(max_length=80)  # type: ignore
 # descriptionType
@@ -47,7 +47,7 @@ class MessageHeader(BaseModel):
     """See section 8.3.3 in ISO 15118-20"""
 
     # XSD type hexBinary with max 8 bytes encoded as 16 hexadecimal characters
-    session_id: str = Field(..., max_length=16, alias="SessionID")
+    session_id: str = Field(..., alias="SessionID")
     timestamp: int = Field(..., alias="TimeStamp")
     signature: Signature = Field(None, alias="Signature")
 
@@ -169,9 +169,9 @@ class RationalNumber(BaseModel):
     """See section 8.3.5.3.8 in ISO 15118-20"""
 
     # XSD type byte with value range [-128..127]
-    exponent: int = Field(..., ge=INT_8_MIN, le=INT_8_MAX, alias="Exponent")
+    exponent: int = Field(..., alias="Exponent")
     # XSD type short (16 bit integer) with value range [-32768..32767]
-    value: int = Field(..., ge=INT_16_MIN, le=INT_16_MAX, alias="Value")
+    value: int = Field(..., alias="Value")
 
     def get_decimal_value(self) -> float:
         return self.value * 10**self.exponent
@@ -206,13 +206,13 @@ class DisplayParameters(BaseModel):
     """See section 8.3.5.3.28 in ISO 15118-20"""
 
     # XSD type byte with value range [0..100]
-    present_soc: int = Field(None, ge=0, le=100, alias="PresentSOC")
+    present_soc: int = Field(None, alias="PresentSOC")
     # XSD type byte with value range [0..100]
-    min_soc: int = Field(None, ge=0, le=100, alias="MinimumSOC")
+    min_soc: int = Field(None, alias="MinimumSOC")
     # XSD type byte with value range [0..100]
-    target_soc: int = Field(None, ge=0, le=100, alias="TargetSOC")
+    target_soc: int = Field(None, alias="TargetSOC")
     # XSD type byte with value range [0..100]
-    max_soc: int = Field(None, ge=0, le=100, alias="MaximumSOC")
+    max_soc: int = Field(None, alias="MaximumSOC")
     remaining_time_to_min_soc: int = Field(None, alias="RemainingTimeToMinimumSOC")
     remaining_time_to_target_soc: int = Field(None, alias="RemainingTimeToTargetSOC")
     remaining_time_to_max_soc: int = Field(None, alias="RemainingTimeToMaximumSOC")
@@ -234,7 +234,7 @@ class ChargeLoopReq(V2GRequest, ABC):
 class MeterInfo(BaseModel):
     """See section 8.3.5.3.7 in ISO 15118-20"""
 
-    meter_id: str = Field(..., max_length=32, alias="MeterID")
+    meter_id: str = Field(..., alias="MeterID")
     charged_energy_reading_wh: int = Field(..., alias="ChargedEnergyReadingWh")
     bpt_discharged_energy_reading_wh: int = Field(
         None, alias="BPTDischargedEnergyReadingWh"
@@ -245,7 +245,7 @@ class MeterInfo(BaseModel):
     bpt_inductive_energy_reading_varh: int = Field(
         None, alias="BPTInductiveEnergyReadingVARh"
     )
-    meter_signature: bytes = Field(None, max_length=64, alias="MeterSignature")
+    meter_signature: bytes = Field(None, alias="MeterSignature")
     meter_status: int = Field(None, alias="MeterStatus")
     meter_timestamp: int = Field(None, alias="MeterTimestamp")
 
@@ -260,7 +260,7 @@ class DetailedCost(BaseModel):
 class DetailedTax(BaseModel):
     """See section 8.3.5.3.60 in ISO 15118-20"""
 
-    tax_rule_id: int = Field(..., ge=1, le=UINT_32_MAX, alias="TaxRuleID")
+    tax_rule_id: int = Field(..., alias="TaxRuleID")
     amount: RationalNumber = Field(..., alias="Amount")
 
 
@@ -275,7 +275,7 @@ class Receipt(BaseModel):
     )
     overstay_costs: DetailedCost = Field(None, alias="OverstayCosts")
     tax_costs: List[DetailedTax] = Field(
-        None, min_items=0, max_items=10, alias="TaxCosts"
+        None, min_items=0, alias="TaxCosts"
     )
 
 
@@ -319,7 +319,7 @@ class DynamicChargeLoopReqParams(BaseModel, ABC):
     See page 464 of Annex A in ISO 15118-20
     """
 
-    departure_time: int = Field(None, ge=0, le=UINT_32_MAX, alias="DepartureTime")
+    departure_time: int = Field(None, alias="DepartureTime")
     ev_target_energy_request: RationalNumber = Field(..., alias="EVTargetEnergyRequest")
     ev_max_energy_request: RationalNumber = Field(..., alias="EVMaximumEnergyRequest")
     ev_min_energy_request: RationalNumber = Field(..., alias="EVMinimumEnergyRequest")
@@ -332,11 +332,11 @@ class DynamicChargeLoopResParams(BaseModel):
     See page 465 of Annex A in ISO 15118-20
     """
 
-    departure_time: int = Field(None, ge=0, le=UINT_32_MAX, alias="DepartureTime")
+    departure_time: int = Field(None, alias="DepartureTime")
     # XSD type byte with value range [0..100]
-    min_soc: int = Field(None, ge=0, le=100, alias="MinimumSOC")
+    min_soc: int = Field(None, alias="MinimumSOC")
     # XSD type byte with value range [0..100]
-    target_soc: int = Field(None, ge=0, le=100, alias="TargetSOC")
+    target_soc: int = Field(None, alias="TargetSOC")
     ack_max_delay: int = Field(None, alias="AckMaxDelay")
 
 
@@ -365,5 +365,5 @@ class RootCertificateIDList(BaseModel):
     """See section 8.3.5.3.27 in ISO 15118-20"""
 
     root_cert_ids: List[X509IssuerSerial] = Field(
-        ..., max_items=20, alias="RootCertificateID"
+        ..., alias="RootCertificateID"
     )

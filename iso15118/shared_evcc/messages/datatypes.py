@@ -33,32 +33,32 @@ class PhysicalValue(BaseModel):
     _max_limit: int = 0
     _min_limit: int = 0
     # XSD int16 range [-32768, 32767]
-    value: int = Field(..., ge=INT_16_MIN, le=INT_16_MAX, alias="Value")
+    value: int = Field(..., alias="Value")
     # XSD type byte with value range [-3..3]
-    multiplier: int = Field(..., ge=-3, le=3, alias="Multiplier")
+    multiplier: int = Field(..., alias="Multiplier")
 
-    @root_validator
-    def validate_value_range(cls, values):
-        """
-        Validator for the range of the PhysicalValue type
+    # @root_validator
+    # def validate_value_range(cls, values):
+    #     """
+    #     Validator for the range of the PhysicalValue type
 
-        Raises:
-            ValueError, if the calculated value exceeds the limits set
-        """
-        value = values.get("value")
-        multiplier = values.get("multiplier")
-        calculated_value = value * 10**multiplier
-        if (
-            0 < cls._max_limit < calculated_value
-            or calculated_value < cls._min_limit < 0
-        ):
-            raise ValueError(
-                f"{cls.__name__[2:] }"  # type: ignore[attr-defined]
-                f"value limit exceeded: {calculated_value} \n"
-                f"Max: {cls._max_limit} \n"
-                f"Min: {cls._min_limit}"
-            )
-        return values
+    #     Raises:
+    #         ValueError, if the calculated value exceeds the limits set
+    #     """
+    #     value = values.get("value")
+    #     multiplier = values.get("multiplier")
+    #     calculated_value = value * 10**multiplier
+    #     if (
+    #         0 < cls._max_limit < calculated_value
+    #         or calculated_value < cls._min_limit < 0
+    #     ):
+    #         raise ValueError(
+    #             f"{cls.__name__[2:] }"  # type: ignore[attr-defined]
+    #             f"value limit exceeded: {calculated_value} \n"
+    #             f"Max: {cls._max_limit} \n"
+    #             f"Min: {cls._min_limit}"
+    #         )
+    #     return values
 
     def get_decimal_value(self) -> float:
         return self.value * 10**self.multiplier
@@ -578,7 +578,7 @@ class EVSEStatus(BaseModel):
 
     # XSD type unsignedShort (16 bit integer) with value range [0..65535]
     notification_max_delay: int = Field(
-        ..., ge=0, le=65535, alias="NotificationMaxDelay"
+        ..., alias="NotificationMaxDelay"
     )
     evse_notification: EVSENotification = Field(..., alias="EVSENotification")
 
@@ -626,11 +626,11 @@ class SelectedService(BaseModel):
     """See section 8.5.2.25 in ISO 15118-2"""
 
     # XSD type unsignedShort (16 bit integer) with value range [0..65535]
-    service_id: int = Field(..., ge=0, le=65535, alias="ServiceID")
+    service_id: int = Field(..., alias="ServiceID")
     # XSD type unsignedShort (16 bit integer) with value range [0..65535]
     # Table 87 says short, Table 106 says unsignedShort. We go with
     # unsignedShort as it makes more sense (no negative values).
-    parameter_set_id: int = Field(None, ge=0, le=65535, alias="ParameterSetID")
+    parameter_set_id: int = Field(None, alias="ParameterSetID")
 
 
 class SelectedServiceList(BaseModel):
@@ -639,7 +639,7 @@ class SelectedServiceList(BaseModel):
     """See section 8.5.2.24 in ISO 15118-2"""
 
     selected_service: List[SelectedService] = Field(
-        ..., max_items=16, alias="SelectedService"
+        ..., alias="SelectedService"
     )
 
 

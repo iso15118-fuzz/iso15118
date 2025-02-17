@@ -12,7 +12,7 @@ class SettingKey:
 
 
 shared_settings = {}
-SHARED_CWD = os.path.dirname(os.path.abspath(__file__))
+SHARED_CWD = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../shared")
 JAR_FILE_PATH = SHARED_CWD + "/EXICodec.jar"
 
 WORK_DIR = os.getcwd()

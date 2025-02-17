@@ -86,10 +86,10 @@ class ServiceDetails(BaseModel):
     """
 
     # XSD type unsignedShort (16 bit integer) with value range [0..65535]
-    service_id: ServiceID = Field(..., ge=0, le=65535, alias="ServiceID")
-    service_name: ServiceName = Field(None, max_length=32, alias="ServiceName")
+    service_id: ServiceID = Field(..., alias="ServiceID")
+    service_name: ServiceName = Field(None, alias="ServiceName")
     service_category: ServiceCategory = Field(..., alias="ServiceCategory")
-    service_scope: str = Field(None, max_length=64, alias="ServiceScope")
+    service_scope: str = Field(None, alias="ServiceScope")
 
 
 class ChargeService(BaseModel):
@@ -107,7 +107,7 @@ class PaymentOptionType(BaseModel):
 
 
 class ContractID(BaseModel):
-    contract_id: str = Field(..., max_length=24, alias="ContractID")
+    contract_id: str = Field(..., alias="ContractID")
 
 
 class EVSENotification(str, Enum):
@@ -123,7 +123,7 @@ class EVSEStatus(BaseModel):
 
     # XSD type unsignedShort (16 bit integer) with value range [0..65535]
     notification_max_delay: int = Field(
-        ..., ge=0, le=65535, alias="NotificationMaxDelay"
+        ..., alias="NotificationMaxDelay"
     )
     evse_notification: EVSENotification = Field(..., alias="EVSENotification")
 
@@ -208,14 +208,14 @@ class Parameter(BaseModel):
 class ParameterSet(BaseModel):
     """TODO: NO description found in spec"""
 
-    parameter_set_id: int = Field(..., ge=0, le=65535, alias="ParameterSetID")
-    parameter: List[Parameter] = Field(..., max_items=16, alias="Parameter")
+    parameter_set_id: int = Field(..., alias="ParameterSetID")
+    parameter: List[Parameter] = Field(..., alias="Parameter")
 
 
 class ServiceParameterList(BaseModel):
     """TODO: NO description found in spec"""
 
-    parameter_set: List[ParameterSet] = Field(..., max_items=255, alias="ParameterSet")
+    parameter_set: List[ParameterSet] = Field(..., alias="ParameterSet")
 
 
 class CostKind(str, Enum):
@@ -233,14 +233,14 @@ class ConsumptionCost(BaseModel):
 class RelativeTimeInterval(BaseModel):
     """See section 9.5.2.12 in DIN SPEC 70121"""
 
-    start: int = Field(..., ge=0, le=16777214, alias="start")
-    duration: int = Field(None, ge=0, le=86400, alias="duration")
+    start: int = Field(..., alias="start")
+    duration: int = Field(None, alias="duration")
 
 
 class PMaxScheduleEntryDetails(BaseModel):
     """See section 9.5.2.10 in DIN SPEC 70121"""
 
-    p_max: int = Field(..., ge=0, le=32767, alias="PMax")
+    p_max: int = Field(..., alias="PMax")
     time_interval: RelativeTimeInterval = Field(..., alias="RelativeTimeInterval")
 
 
@@ -250,9 +250,9 @@ class PMaxScheduleEntry(BaseModel):
     PMaxScheduleType shall be limited to twelve (12)
     """
 
-    p_max_schedule_id: int = Field(..., ge=0, le=32767, alias="PMaxScheduleID")
+    p_max_schedule_id: int = Field(..., alias="PMaxScheduleID")
     entry_details: List[PMaxScheduleEntryDetails] = Field(
-        ..., max_items=12, alias="PMaxScheduleEntry"
+        ..., alias="PMaxScheduleEntry"
     )
 
 
@@ -275,14 +275,14 @@ class SAScheduleTupleEntry(BaseModel):
     # “SalesTariff” shall not be used.
 
     # XSD type unsignedByte with value range [1..255]
-    sa_schedule_tuple_id: int = Field(..., ge=1, le=255, alias="SAScheduleTupleID")
+    sa_schedule_tuple_id: int = Field(..., alias="SAScheduleTupleID")
     p_max_schedule: PMaxScheduleEntry = Field(..., alias="PMaxSchedule")
     sales_tariff: SalesTariff = Field(None, alias="SalesTariff")
 
 
 class SAScheduleList(BaseModel):
     values: List[SAScheduleTupleEntry] = Field(
-        ..., max_items=3, alias="SAScheduleTuple"
+        ..., alias="SAScheduleTuple"
     )
 
 
@@ -290,15 +290,15 @@ class ProfileEntryDetails(BaseModel):
     """See section 9.5.2.7 in DIN SPEC 70121"""
 
     start: int = Field(..., alias="ChargingProfileEntryStart")
-    max_power: int = Field(..., ge=0, le=32767, alias="ChargingProfileEntryMaxPower")
+    max_power: int = Field(..., alias="ChargingProfileEntryMaxPower")
 
 
 class ChargingProfile(BaseModel):
     """See section 9.5.2.6 in DIN SPEC 70121"""
 
-    sa_schedule_tuple_id: int = Field(..., ge=0, le=65535, alias="SAScheduleTupleID")
+    sa_schedule_tuple_id: int = Field(..., alias="SAScheduleTupleID")
     profile_entries: List[ProfileEntryDetails] = Field(
-        ..., max_items=24, alias="ProfileEntry"
+        ..., alias="ProfileEntry"
     )
 
 
@@ -342,7 +342,7 @@ class DCEVStatus(BaseModel):
     ev_ress_conditioning: bool = Field(None, alias="EVRESSConditioning")
     ev_error_code: DCEVErrorCode = Field(..., alias="EVErrorCode")
     # XSD type byte with value range [0..100]
-    ev_ress_soc: int = Field(..., ge=0, le=100, alias="EVRESSSOC")
+    ev_ress_soc: int = Field(..., alias="EVRESSSOC")
 
 
 class DCEVChargeParameter(EVChargeParameter):
@@ -369,9 +369,9 @@ class DCEVChargeParameter(EVChargeParameter):
     ev_energy_capacity: PVEVEnergyCapacityDin = Field(None, alias="EVEnergyCapacity")
     ev_energy_request: PVEVEnergyRequestDin = Field(None, alias="EVEnergyRequest")
     # XSD type byte with value range [0..100]
-    full_soc: int = Field(None, ge=0, le=100, alias="FullSOC")
+    full_soc: int = Field(None, alias="FullSOC")
     # XSD type byte with value range [0..100]
-    bulk_soc: int = Field(None, ge=0, le=100, alias="BulkSOC")
+    bulk_soc: int = Field(None, alias="BulkSOC")
 
 
 class DCEVPowerDeliveryParameter(BaseModel):
@@ -391,7 +391,7 @@ class AuthOptionList(BaseModel):
     """
 
     auth_options: List[AuthEnum] = Field(
-        ..., min_items=1, max_items=2, alias="PaymentOption"
+        ..., min_items=1, alias="PaymentOption"
     )
 
 
@@ -408,7 +408,7 @@ class Notification(BaseModel):
     """See xml schema V2G_CI_MsgDataTypes.xsd (PAGE )"""
 
     fault_code: FaultCode = Field(..., alias="FaultCode")
-    fault_msg: str = Field(None, max_length=64, alias="FaultMsg")
+    fault_msg: str = Field(None, alias="FaultMsg")
 
     def __str__(self):
         additional_info = f" ({self.fault_msg})" if self.fault_msg else ""

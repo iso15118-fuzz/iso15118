@@ -53,14 +53,14 @@ from iso15118.shared_evcc.validators import one_field_must_be_set
 # Check Annex C.6 or the certificateType in V2G_CI_MsgDataTypes.xsd
 Certificate: TypeAlias = conbytes(max_length=800)  # type: ignore
 # Check Annex C.6 or the eMAIDType in V2G_CI_MsgDataTypes.xsd
-eMAID: TypeAlias = constr(min_length=14, max_length=15)  # type: ignore
+eMAID: TypeAlias = constr(min_length=14)  # type: ignore
 
 
 class EVChargeParameter(BaseModel):
     """See section 8.4.3.8.2 in ISO 15118-2"""
 
     # XSD type unsignedInt (32-bit unsigned integer) with value range
-    departure_time: int = Field(None, ge=0, le=UINT_32_MAX, alias="DepartureTime")
+    departure_time: int = Field(None, alias="DepartureTime")
 
 
 class ACEVChargeParameter(EVChargeParameter):
@@ -95,7 +95,7 @@ class SubCertificates(BaseModel):
     So, we set it here to 2, the max number of certificates allowed.
     """
 
-    certificates: List[Certificate] = Field(..., max_items=2, alias="Certificate")
+    certificates: List[Certificate] = Field(..., alias="Certificate")
 
 
 class CertificateChain(BaseModel):
@@ -121,7 +121,7 @@ class EnergyTransferModeList(BaseModel):
     """See section 8.5.2.4 in ISO 15118-2"""
 
     energy_modes: List[EnergyTransferModeEnum] = Field(
-        ..., max_items=6, alias="EnergyTransferMode"
+        ..., alias="EnergyTransferMode"
     )
 
 
@@ -160,10 +160,10 @@ class ServiceDetails(BaseModel):
     """See section 8.5.2.1 in ISO 15118-2"""
 
     # XSD type unsignedShort (16 bit integer) with value range [0..65535]
-    service_id: ServiceID = Field(..., ge=0, le=65535, alias="ServiceID")
-    service_name: ServiceName = Field(None, max_length=32, alias="ServiceName")
+    service_id: ServiceID = Field(..., alias="ServiceID")
+    service_name: ServiceName = Field(None, alias="ServiceName")
     service_category: ServiceCategory = Field(..., alias="ServiceCategory")
-    service_scope: str = Field(None, max_length=64, alias="ServiceScope")
+    service_scope: str = Field(None, alias="ServiceScope")
     free_service: bool = Field(..., alias="FreeService")
 
 
@@ -182,7 +182,7 @@ class ProfileEntryDetails(BaseModel):
     max_power: PVPMax = Field(..., alias="ChargingProfileEntryMaxPower")
     # XSD type byte with value range [1..3]
     max_phases_in_use: int = Field(
-        None, ge=1, le=3, alias="ChargingProfileEntryMaxNumberOfPhasesInUse"
+        None, alias="ChargingProfileEntryMaxNumberOfPhasesInUse"
     )
 
 
@@ -190,7 +190,7 @@ class ChargingProfile(BaseModel):
     """See section 8.5.2.10 in ISO 15118-2"""
 
     profile_entries: List[ProfileEntryDetails] = Field(
-        ..., max_items=24, alias="ProfileEntry"
+        ..., alias="ProfileEntry"
     )
 
 
@@ -215,14 +215,14 @@ class Cost(BaseModel):
     cost_kind: CostKind = Field(..., alias="costKind")
     amount: int = Field(..., alias="amount")
     # XSD type byte with value range [-3..3]
-    amount_multiplier: int = Field(None, ge=-3, le=3, alias="amountMultiplier")
+    amount_multiplier: int = Field(None, ge=-3, alias="amountMultiplier")
 
 
 class ConsumptionCost(BaseModel):
     """See section 8.5.2.19 in ISO 15118-2"""
 
     start_value: PVStartValue = Field(..., alias="startValue")
-    cost: List[Cost] = Field(..., max_items=3, alias="Cost")
+    cost: List[Cost] = Field(..., alias="Cost")
 
 
 class EncryptedPrivateKey(BaseModel):
@@ -235,7 +235,7 @@ class EncryptedPrivateKey(BaseModel):
     # ContractSignatureEncryptedPrivateKeyType but its base XSD type named
     # privateKeyType has an XSD element <xs:maxLength value="48"/>. That's why
     # we add this 'value' field
-    value: bytes = Field(..., max_length=48, alias="value")
+    value: bytes = Field(..., alias="value")
 
     def __str__(self):
         # The XSD conform element name
@@ -248,7 +248,7 @@ class DCEVStatus(BaseModel):
     ev_ready: bool = Field(..., alias="EVReady")
     ev_error_code: DCEVErrorCode = Field(..., alias="EVErrorCode")
     # XSD type byte with value range [0..100]
-    ev_ress_soc: int = Field(..., ge=0, le=100, alias="EVRESSSOC")
+    ev_ress_soc: int = Field(..., alias="EVRESSSOC")
 
 
 class DCEVChargeParameter(EVChargeParameter):
@@ -265,9 +265,9 @@ class DCEVChargeParameter(EVChargeParameter):
     ev_energy_capacity: PVEVEnergyCapacity = Field(None, alias="EVEnergyCapacity")
     ev_energy_request: PVEVEnergyRequest = Field(None, alias="EVEnergyRequest")
     # XSD type byte with value range [0..100]
-    full_soc: int = Field(None, ge=0, le=100, alias="FullSOC")
+    full_soc: int = Field(None, alias="FullSOC")
     # XSD type byte with value range [0..100]
-    bulk_soc: int = Field(None, ge=0, le=100, alias="BulkSOC")
+    bulk_soc: int = Field(None, alias="BulkSOC")
 
 
 class DCEVPowerDeliveryParameter(BaseModel):
@@ -291,7 +291,7 @@ class DHPublicKey(BaseModel):
     """
 
     id: str = Field(..., alias="Id")
-    value: bytes = Field(..., max_length=65, alias="value")
+    value: bytes = Field(..., alias="value")
 
     def __str__(self):
         # The XSD has a typo here, not using pascal case for the datatype
@@ -311,16 +311,16 @@ class RootCertificateIDList(BaseModel):
     """See section 8.5.2.27 in ISO 15118-2"""
 
     x509_issuer_serials: List[X509IssuerSerial] = Field(
-        ..., max_items=20, alias="RootCertificateID"
+        ..., alias="RootCertificateID"
     )
 
 
 class MeterInfo(BaseModel):
     """See section 8.5.2.27 in ISO 15118-2"""
 
-    meter_id: str = Field(..., max_length=32, alias="MeterID")
-    meter_reading: int = Field(None, ge=0, le=999999999, alias="MeterReading")
-    sig_meter_reading: bytes = Field(None, max_length=64, alias="SigMeterReading")
+    meter_id: str = Field(..., alias="MeterID")
+    meter_reading: int = Field(None, alias="MeterReading")
+    sig_meter_reading: bytes = Field(None, alias="SigMeterReading")
     # XSD type short (16 bit integer) with value range [-32768..32767]
     # A status with a negative value doesn't make much sense though ...
     meter_status: int = Field(None, ge=INT_16_MIN, le=INT_16_MAX, alias="MeterStatus")
@@ -334,7 +334,7 @@ class Notification(BaseModel):
     """See section 8.5.2.8 in ISO 15118-2"""
 
     fault_code: FaultCode = Field(..., alias="FaultCode")
-    fault_msg: str = Field(None, max_length=64, alias="FaultMsg")
+    fault_msg: str = Field(None, alias="FaultMsg")
 
     def __str__(self):
         additional_info = f" ({self.fault_msg})" if self.fault_msg else ""
@@ -394,8 +394,8 @@ class ParameterSet(BaseModel):
     # XSD type unsignedShort (16 bit integer) with value range [0..65535]
     # Table 87 says short, Table 106 says unsignedShort. We go with
     # unsignedShort as it makes more sense (no negative values).
-    parameter_set_id: int = Field(..., ge=0, le=65535, alias="ParameterSetID")
-    parameters: List[Parameter] = Field(..., max_items=16, alias="Parameter")
+    parameter_set_id: int = Field(..., alias="ParameterSetID")
+    parameters: List[Parameter] = Field(..., alias="Parameter")
 
 
 class AuthOptionList(BaseModel):
@@ -407,15 +407,15 @@ class AuthOptionList(BaseModel):
     """
 
     auth_options: List[AuthEnum] = Field(
-        ..., min_items=1, max_items=2, alias="PaymentOption"
+        ..., min_items=1, alias="PaymentOption"
     )
 
 
 class RelativeTimeInterval(BaseModel):
     """See section 8.5.2.18 in ISO 15118-2"""
 
-    start: int = Field(..., ge=0, le=16777214, alias="start")
-    duration: int = Field(None, ge=0, le=86400, alias="duration")
+    start: int = Field(..., alias="start")
+    duration: int = Field(None, alias="duration")
 
 
 class PMaxScheduleEntry(BaseModel):
@@ -429,7 +429,7 @@ class PMaxSchedule(BaseModel):
     """See section 8.5.2.14 in ISO 15118-2"""
 
     schedule_entries: List[PMaxScheduleEntry] = Field(
-        ..., max_items=1024, alias="PMaxScheduleEntry"
+        ..., alias="PMaxScheduleEntry"
     )
 
 
@@ -471,23 +471,23 @@ class ServiceList(BaseModel):
 
     """See section 8.5.2.2 in ISO 15118-2"""
 
-    services: List[ServiceDetails] = Field(..., max_items=8, alias="Service")
+    services: List[ServiceDetails] = Field(..., alias="Service")
 
 
 class ServiceParameterList(BaseModel):
     """See section 8.5.2.21 in ISO 15118-2"""
 
-    parameter_set: List[ParameterSet] = Field(..., max_items=255, alias="ParameterSet")
+    parameter_set: List[ParameterSet] = Field(..., alias="ParameterSet")
 
 
 class SalesTariffEntry(BaseModel):
     """See section 8.5.2.17 in ISO 15118-2"""
 
     # XSD type unsignedByte with value range [0..255]
-    e_price_level: int = Field(None, ge=0, le=255, alias="EPriceLevel")
+    e_price_level: int = Field(None, alias="EPriceLevel")
     time_interval: RelativeTimeInterval = Field(..., alias="RelativeTimeInterval")
     consumption_cost: List[ConsumptionCost] = Field(
-        None, max_items=3, alias="ConsumptionCost"
+        None, alias="ConsumptionCost"
     )
 
     @validator("consumption_cost")
@@ -516,14 +516,14 @@ class SalesTariff(BaseModel):
     # XSD type unsignedByte with value range [0 .. 255]
     # Table 77 says it's both of type SAIDType (which is unsignedByte) and
     # short, so we choose the smaller value range.
-    sales_tariff_id: int = Field(..., ge=0, le=255, alias="SalesTariffID")
+    sales_tariff_id: int = Field(..., alias="SalesTariffID")
     sales_tariff_description: str = Field(
-        None, max_length=32, alias="SalesTariffDescription"
+        None, alias="SalesTariffDescription"
     )
     # XSD type unsignedByte with value range [0..255]
-    num_e_price_levels: int = Field(None, ge=0, le=255, alias="NumEPriceLevels")
+    num_e_price_levels: int = Field(None, alias="NumEPriceLevels")
     sales_tariff_entry: List[SalesTariffEntry] = Field(
-        ..., max_items=102, alias="SalesTariffEntry"
+        ..., alias="SalesTariffEntry"
     )
 
     @validator("sales_tariff_entry")
@@ -582,14 +582,14 @@ class SAScheduleTuple(BaseModel):
     """See section 8.5.2.13 in ISO 15118-2"""
 
     # XSD type unsignedByte with value range [1..255]
-    sa_schedule_tuple_id: int = Field(..., ge=1, le=255, alias="SAScheduleTupleID")
+    sa_schedule_tuple_id: int = Field(..., alias="SAScheduleTupleID")
     p_max_schedule: PMaxSchedule = Field(..., alias="PMaxSchedule")
     sales_tariff: SalesTariff = Field(None, alias="SalesTariff")
 
 
 class SAScheduleList(BaseModel):
     schedule_tuples: List[SAScheduleTuple] = Field(
-        ..., max_items=3, alias="SAScheduleTuple"
+        ..., alias="SAScheduleTuple"
     )
 
 

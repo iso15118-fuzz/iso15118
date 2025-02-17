@@ -40,7 +40,7 @@ class DCChargeParameterDiscoveryReqParams(BaseModel):
     ev_min_charge_current: RationalNumber = Field(..., alias="EVMinimumChargeCurrent")
     ev_max_voltage: RationalNumber = Field(..., alias="EVMaximumVoltage")
     ev_min_voltage: RationalNumber = Field(..., alias="EVMinimumVoltage")
-    target_soc: int = Field(None, ge=0, le=100, alias="TargetSOC")
+    target_soc: int = Field(None, alias="TargetSOC")
 
 
 class DCChargeParameterDiscoveryResParams(BaseModel):

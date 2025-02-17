@@ -23,7 +23,7 @@ class MessageHeader(BaseModel):
     """See section 9.3.3 in DIN SPEC 70121"""
 
     # XSD type hexBinary with max 8 bytes encoded as 16 hexadecimal characters
-    session_id: str = Field(..., max_length=16, alias="SessionID")
+    session_id: str = Field(..., alias="SessionID")
     notification: Notification = Field(None, alias="Notification")
     signature: Signature = Field(None, alias="Signature")
 

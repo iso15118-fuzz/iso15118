@@ -2,8 +2,6 @@ import json
 import logging
 from typing import List, Optional
 
-from aiofile import async_open
-
 from iso15118.shared_evcc.messages.enums import (
     EnergyTransferModeEnum,
     Protocol,
@@ -59,10 +57,10 @@ class EVCCConfig:
         )
 
 
-async def load_from_file(file_name: str) -> EVCCConfig:
+def load_from_file(file_name: str) -> EVCCConfig:
     try:
-        async with async_open(file_name, "r") as f:
-            json_content = await f.read()
+        with open(file_name, "r") as f:
+            json_content = f.read()
             data = json.loads(json_content)
             ev_config = EVCCConfig(data)
             logger.info("EVCC Settings")

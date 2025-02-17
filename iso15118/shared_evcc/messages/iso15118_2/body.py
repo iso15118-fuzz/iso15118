@@ -99,7 +99,7 @@ class AuthorizationReq(BodyBase):
     # doesn't have attributes. The EXI codec has to en-/decode accordingly.
     id: str = Field(None, alias="Id")
     gen_challenge: bytes = Field(
-        None, min_length=16, max_length=16, alias="GenChallenge"
+        None, alias="GenChallenge"
     )
 
     @root_validator(pre=True)
@@ -149,7 +149,7 @@ class CertificateInstallationReq(BodyBase):
 
     id: str = Field(..., alias="Id")
     oem_provisioning_cert: bytes = Field(
-        ..., max_length=800, alias="OEMProvisioningCert"
+        ..., alias="OEMProvisioningCert"
     )
     list_of_root_cert_ids: RootCertificateIDList = Field(
         ..., alias="ListOfRootCertificateIDs"
@@ -201,7 +201,7 @@ class CertificateUpdateRes(Response):
     emaid: EMAID = Field(..., alias="eMAID")
     # XSD type short (16 bit integer) with value range [-32768..32767].
     # But only -1 is allowed as negative value.
-    retry_counter: int = Field(None, ge=-1, le=32767, alias="RetryCounter")
+    retry_counter: int = Field(None, ge=-1, alias="RetryCounter")
 
 
 class ChargeParameterDiscoveryReq(BodyBase):
@@ -209,7 +209,7 @@ class ChargeParameterDiscoveryReq(BodyBase):
 
     # XSD type unsignedShort (16 bit integer) with value range [0..65535]
     max_entries_sa_schedule_tuple: int = Field(
-        None, ge=0, le=65535, alias="MaxEntriesSAScheduleTuple"
+        None, alias="MaxEntriesSAScheduleTuple"
     )
     requested_energy_mode: EnergyTransferModeEnum = Field(
         ..., alias="RequestedEnergyTransferMode"
@@ -336,9 +336,9 @@ class ChargingStatusReq(BodyBase):
 class ChargingStatusRes(Response):
     """See section 8.4.4.2.3 in ISO 15118-2"""
 
-    evse_id: str = Field(..., min_length=7, max_length=37, alias="EVSEID")
+    evse_id: str = Field(..., alias="EVSEID")
     # XSD type unsignedByte with value range [1..255]
-    sa_schedule_tuple_id: int = Field(..., ge=1, le=255, alias="SAScheduleTupleID")
+    sa_schedule_tuple_id: int = Field(..., alias="SAScheduleTupleID")
     evse_max_current: PVEVSEMaxCurrent = Field(None, alias="EVSEMaxCurrent")
     meter_info: MeterInfo = Field(None, alias="MeterInfo")
     receipt_required: bool = Field(None, alias="ReceiptRequired")
@@ -387,9 +387,9 @@ class CurrentDemandRes(Response):
         None, alias="EVSEMaximumPowerLimit"
     )
     # Note: Table 56 denotes the EVSEID type falsely as hexBinary
-    evse_id: str = Field(..., min_length=7, max_length=37, alias="EVSEID")
+    evse_id: str = Field(..., alias="EVSEID")
     # XSD type unsignedByte with value range [1..255]
-    sa_schedule_tuple_id: int = Field(..., ge=1, le=255, alias="SAScheduleTupleID")
+    sa_schedule_tuple_id: int = Field(..., alias="SAScheduleTupleID")
     meter_info: MeterInfo = Field(None, alias="MeterInfo")
     receipt_required: bool = Field(None, alias="ReceiptRequired")
 
@@ -401,9 +401,9 @@ class MeteringReceiptReq(BodyBase):
     # doesn't have attributes. The EXI codec has to en-/decode accordingly.
     id: str = Field(None, alias="Id")
     # XSD type hexBinary with max 8 bytes encoded as 16 hexadecimal characters
-    session_id: str = Field(..., max_length=16, alias="SessionID")
+    session_id: str = Field(..., alias="SessionID")
     # XSD type unsignedByte with value range [1..255]
-    sa_schedule_tuple_id: int = Field(None, ge=1, le=255, alias="SAScheduleTupleID")
+    sa_schedule_tuple_id: int = Field(None, alias="SAScheduleTupleID")
     meter_info: MeterInfo = Field(..., alias="MeterInfo")
 
     @validator("session_id")
@@ -467,7 +467,7 @@ class PaymentDetailsRes(Response):
     """See section 8.4.3.6.3 in ISO 15118-2"""
 
     gen_challenge: bytes = Field(
-        ..., min_length=16, max_length=16, alias="GenChallenge"
+        ..., alias="GenChallenge"
     )
     evse_timestamp: int = Field(..., alias="EVSETimeStamp")
 
@@ -494,7 +494,7 @@ class PowerDeliveryReq(BodyBase):
 
     charge_progress: ChargeProgress = Field(..., alias="ChargeProgress")
     # XSD type unsignedByte with value range [1..255]
-    sa_schedule_tuple_id: int = Field(..., ge=1, le=255, alias="SAScheduleTupleID")
+    sa_schedule_tuple_id: int = Field(..., alias="SAScheduleTupleID")
     charging_profile: ChargingProfile = Field(None, alias="ChargingProfile")
     dc_ev_power_delivery_parameter: DCEVPowerDeliveryParameter = Field(
         None, alias="DC_EVPowerDeliveryParameter"
@@ -548,14 +548,14 @@ class ServiceDetailReq(BodyBase):
     """See section 8.4.3.4.1 in ISO 15118-2"""
 
     # XSD type unsignedShort (16 bit integer) with value range [0..65535]
-    service_id: int = Field(..., ge=0, le=65535, alias="ServiceID")
+    service_id: int = Field(..., alias="ServiceID")
 
 
 class ServiceDetailRes(Response):
     """See section 8.4.3.4.2 in ISO 15118-2"""
 
     # XSD type unsignedShort (16 bit integer) with value range [0..65535]
-    service_id: int = Field(..., ge=0, le=65535, alias="ServiceID")
+    service_id: int = Field(..., alias="ServiceID")
     service_parameter_list: ServiceParameterList = Field(
         None, alias="ServiceParameterList"
     )
@@ -564,7 +564,7 @@ class ServiceDetailRes(Response):
 class ServiceDiscoveryReq(BodyBase):
     """See section 8.4.3.3.2 in ISO 15118-2"""
 
-    service_scope: str = Field(None, max_length=64, alias="ServiceScope")
+    service_scope: str = Field(None, alias="ServiceScope")
     service_category: ServiceCategory = Field(None, alias="ServiceCategory")
 
 
@@ -580,7 +580,7 @@ class SessionSetupReq(BodyBase):
     """See section 8.4.3.2.1 in ISO 15118-2"""
 
     # XSD type hexBinary with max 8 bytes encoded as 12 hexadecimal characters
-    evcc_id: str = Field(..., max_length=12, alias="EVCCID")
+    evcc_id: str = Field(..., alias="EVCCID")
 
     @validator("evcc_id")
     def check_sessionid_is_hexbinary(cls, value):
@@ -607,7 +607,7 @@ class SessionSetupReq(BodyBase):
 class SessionSetupRes(Response):
     """See section 8.4.3.2.2 in ISO 15118-2"""
 
-    evse_id: str = Field(..., min_length=7, max_length=37, alias="EVSEID")
+    evse_id: str = Field(..., alias="EVSEID")
     evse_timestamp: int = Field(None, alias="EVSETimeStamp")
 
 
