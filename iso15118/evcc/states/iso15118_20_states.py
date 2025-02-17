@@ -11,14 +11,14 @@ from typing import Any, List, Union, cast
 
 from iso15118.evcc.comm_session_handler import EVCCCommunicationSession
 from iso15118.evcc.states.evcc_state import StateEVCC
-from iso15118.shared.exceptions import PrivateKeyReadError
-from iso15118.shared.exi_codec import EXI
-from iso15118.shared.messages.app_protocol import (
+from iso15118.shared_evcc.exceptions import PrivateKeyReadError
+from iso15118.shared_evcc.exi_codec import EXI
+from iso15118.shared_evcc.messages.app_protocol import (
     SupportedAppProtocolReq,
     SupportedAppProtocolRes,
 )
-from iso15118.shared.messages.din_spec.msgdef import V2GMessage as V2GMessageDINSPEC
-from iso15118.shared.messages.enums import (
+from iso15118.shared_evcc.messages.din_spec.msgdef import V2GMessage as V2GMessageDINSPEC
+from iso15118.shared_evcc.messages.enums import (
     AuthEnum,
     ControlMode,
     ISOV20PayloadTypes,
@@ -27,14 +27,14 @@ from iso15118.shared.messages.enums import (
     ServiceV20,
     SessionStopAction,
 )
-from iso15118.shared.messages.iso15118_2.msgdef import V2GMessage as V2GMessageV2
-from iso15118.shared.messages.iso15118_20.ac import (
+from iso15118.shared_evcc.messages.iso15118_2.msgdef import V2GMessage as V2GMessageV2
+from iso15118.shared_evcc.messages.iso15118_20.ac import (
     ACChargeLoopReq,
     ACChargeLoopRes,
     ACChargeParameterDiscoveryReq,
     ACChargeParameterDiscoveryRes,
 )
-from iso15118.shared.messages.iso15118_20.common_messages import (
+from iso15118.shared_evcc.messages.iso15118_20.common_messages import (
     AuthorizationReq,
     AuthorizationRes,
     AuthorizationSetupReq,
@@ -60,20 +60,20 @@ from iso15118.shared.messages.iso15118_20.common_messages import (
     SessionStopReq,
     SessionStopRes,
 )
-from iso15118.shared.messages.iso15118_20.common_types import (
+from iso15118.shared_evcc.messages.iso15118_20.common_types import (
     EVSENotification,
     MessageHeader,
     Processing,
     RationalNumber,
     RootCertificateIDList,
 )
-from iso15118.shared.messages.iso15118_20.common_types import (
+from iso15118.shared_evcc.messages.iso15118_20.common_types import (
     V2GMessage as V2GMessageV20,
 )
-from iso15118.shared.messages.iso15118_20.common_types import (
+from iso15118.shared_evcc.messages.iso15118_20.common_types import (
     V2GRequest,
 )
-from iso15118.shared.messages.iso15118_20.dc import (
+from iso15118.shared_evcc.messages.iso15118_20.dc import (
     BPTDynamicDCChargeLoopReqParams,
     BPTScheduledDCChargeLoopReqParams,
     DCCableCheckReq,
@@ -88,11 +88,11 @@ from iso15118.shared.messages.iso15118_20.dc import (
     DynamicDCChargeLoopReqParams,
     ScheduledDCChargeLoopReqParams,
 )
-from iso15118.shared.messages.iso15118_20.timeouts import Timeouts
-from iso15118.shared.messages.timeouts import Timeouts as TimeoutsShared
-from iso15118.shared.messages.xmldsig import X509IssuerSerial
-from iso15118.shared.notifications import StopNotification
-from iso15118.shared.security import (
+from iso15118.shared_evcc.messages.iso15118_20.timeouts import Timeouts
+from iso15118.shared_evcc.messages.timeouts import Timeouts as TimeoutsShared
+from iso15118.shared_evcc.messages.xmldsig import X509IssuerSerial
+from iso15118.shared_evcc.notifications import StopNotification
+from iso15118.shared_evcc.security import (
     CertPath,
     KeyEncoding,
     KeyPasswordPath,
@@ -102,7 +102,7 @@ from iso15118.shared.security import (
     load_cert_chain,
     load_priv_key,
 )
-from iso15118.shared.states import Terminate
+from iso15118.shared_evcc.states import Terminate
 
 logger = logging.getLogger(__name__)
 

@@ -5,10 +5,10 @@ import struct
 from asyncio import DatagramProtocol, DatagramTransport
 from typing import Optional, Tuple
 
-from iso15118.shared.messages.timeouts import Timeouts
-from iso15118.shared.messages.v2gtp import V2GTPMessage
-from iso15118.shared.network import SDP_MULTICAST_GROUP, SDP_SERVER_PORT
-from iso15118.shared.notifications import (
+from iso15118.shared_evcc.messages.timeouts import Timeouts
+from iso15118.shared_evcc.messages.v2gtp import V2GTPMessage
+from iso15118.shared_evcc.network import SDP_MULTICAST_GROUP, SDP_SERVER_PORT
+from iso15118.shared_evcc.notifications import (
     ReceiveTimeoutNotification,
     UDPPacketNotification,
 )

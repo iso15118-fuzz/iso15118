@@ -6,8 +6,8 @@ from iso15118.evcc.comm_session_handler import CommunicationSessionHandler
 from iso15118.evcc.controller.interface import EVControllerInterface
 from iso15118.evcc.evcc_config import EVCCConfig
 from iso15118.evcc.evcc_settings import Config
-from iso15118.shared.iexi_codec import IEXICodec
-from iso15118.shared.logging import _init_logger
+from iso15118.shared_evcc.iexi_codec import IEXICodec
+from iso15118.shared_evcc.logging import _init_logger
 
 _init_logger()
 logger = logging.getLogger(__name__)

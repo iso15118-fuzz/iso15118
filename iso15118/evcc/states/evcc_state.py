@@ -9,42 +9,42 @@ from abc import ABC
 from typing import Optional, Type, TypeVar, Union
 
 from iso15118.evcc.comm_session_handler import EVCCCommunicationSession
-from iso15118.shared.messages.app_protocol import (
+from iso15118.shared_evcc.messages.app_protocol import (
     SupportedAppProtocolReq,
     SupportedAppProtocolRes,
 )
-from iso15118.shared.messages.din_spec.body import Response as ResponseDINSPEC
-from iso15118.shared.messages.din_spec.body import (
+from iso15118.shared_evcc.messages.din_spec.body import Response as ResponseDINSPEC
+from iso15118.shared_evcc.messages.din_spec.body import (
     SessionSetupRes as SessionSetupResDINSPEC,
 )
-from iso15118.shared.messages.din_spec.msgdef import V2GMessage as V2GMessageDINSPEC
-from iso15118.shared.messages.enums import ISOV20PayloadTypes, Namespace
-from iso15118.shared.messages.iso15118_2.body import Response as ResponseV2
-from iso15118.shared.messages.iso15118_2.body import (
+from iso15118.shared_evcc.messages.din_spec.msgdef import V2GMessage as V2GMessageDINSPEC
+from iso15118.shared_evcc.messages.enums import ISOV20PayloadTypes, Namespace
+from iso15118.shared_evcc.messages.iso15118_2.body import Response as ResponseV2
+from iso15118.shared_evcc.messages.iso15118_2.body import (
     SessionSetupRes as SessionSetupResV2,
 )
-from iso15118.shared.messages.iso15118_2.msgdef import V2GMessage as V2GMessageV2
-from iso15118.shared.messages.iso15118_20.common_messages import (
+from iso15118.shared_evcc.messages.iso15118_2.msgdef import V2GMessage as V2GMessageV2
+from iso15118.shared_evcc.messages.iso15118_20.common_messages import (
     ChargeProgress,
     ChargingSession,
     PowerDeliveryReq,
 )
-from iso15118.shared.messages.iso15118_20.common_messages import (
+from iso15118.shared_evcc.messages.iso15118_20.common_messages import (
     SessionSetupRes as SessionSetupResV20,
 )
-from iso15118.shared.messages.iso15118_20.common_types import (
+from iso15118.shared_evcc.messages.iso15118_20.common_types import (
     MessageHeader,
     Processing,
 )
-from iso15118.shared.messages.iso15118_20.common_types import (
+from iso15118.shared_evcc.messages.iso15118_20.common_types import (
     V2GMessage as V2GMessageV20,
 )
-from iso15118.shared.messages.iso15118_20.common_types import (
+from iso15118.shared_evcc.messages.iso15118_20.common_types import (
     V2GResponse as V2GResponseV20,
 )
-from iso15118.shared.messages.iso15118_20.timeouts import Timeouts
-from iso15118.shared.notifications import StopNotification
-from iso15118.shared.states import State, Terminate
+from iso15118.shared_evcc.messages.iso15118_20.timeouts import Timeouts
+from iso15118.shared_evcc.notifications import StopNotification
+from iso15118.shared_evcc.states import State, Terminate
 
 logger = logging.getLogger(__name__)
 

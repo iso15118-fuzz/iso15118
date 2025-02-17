@@ -5,8 +5,8 @@ from typing import Optional
 
 import environs
 
-from iso15118.shared.network import validate_nic
-from iso15118.shared.settings import load_shared_settings, shared_settings
+from iso15118.shared_evcc.network import validate_nic
+from iso15118.shared_evcc.settings import load_shared_settings, shared_settings
 
 logger = logging.getLogger(__name__)
 

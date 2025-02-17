@@ -10,8 +10,8 @@ from typing import List, Optional, Tuple, Union
 
 from iso15118.evcc import EVCCConfig
 from iso15118.evcc.controller.interface import ChargeParamsV2, EVControllerInterface
-from iso15118.shared.exceptions import InvalidProtocolError, MACAddressNotFound
-from iso15118.shared.messages.datatypes import (
+from iso15118.shared_evcc.exceptions import InvalidProtocolError, MACAddressNotFound
+from iso15118.shared_evcc.messages.datatypes import (
     DCEVChargeParams,
     PVEAmount,
     PVEVEnergyCapacity,
@@ -29,17 +29,17 @@ from iso15118.shared.messages.datatypes import (
     PVRemainingTimeToBulkSOC,
     PVRemainingTimeToFullSOC,
 )
-from iso15118.shared.messages.din_spec.datatypes import (
+from iso15118.shared_evcc.messages.din_spec.datatypes import (
     DCEVPowerDeliveryParameter as DCEVPowerDeliveryParameterDINSPEC,
 )
-from iso15118.shared.messages.din_spec.datatypes import DCEVStatus as DCEVStatusDINSPEC
-from iso15118.shared.messages.din_spec.datatypes import (
+from iso15118.shared_evcc.messages.din_spec.datatypes import DCEVStatus as DCEVStatusDINSPEC
+from iso15118.shared_evcc.messages.din_spec.datatypes import (
     ProfileEntryDetails as ProfileEntryDetailsDINSPEC,
 )
-from iso15118.shared.messages.din_spec.datatypes import (
+from iso15118.shared_evcc.messages.din_spec.datatypes import (
     SAScheduleTupleEntry as SAScheduleTupleEntryDINSPEC,
 )
-from iso15118.shared.messages.enums import (
+from iso15118.shared_evcc.messages.enums import (
     ControlMode,
     DCEVErrorCode,
     EnergyTransferModeEnum,
@@ -49,13 +49,13 @@ from iso15118.shared.messages.enums import (
     ServiceV20,
     UnitSymbol,
 )
-from iso15118.shared.messages.iso15118_2.datatypes import (
+from iso15118.shared_evcc.messages.iso15118_2.datatypes import (
     ACEVChargeParameter,
 )
-from iso15118.shared.messages.iso15118_2.datatypes import (
+from iso15118.shared_evcc.messages.iso15118_2.datatypes import (
     ChargeProgress as ChargeProgressV2,
 )
-from iso15118.shared.messages.iso15118_2.datatypes import (
+from iso15118.shared_evcc.messages.iso15118_2.datatypes import (
     ChargingProfile,
     DCEVChargeParameter,
     DCEVPowerDeliveryParameter,
@@ -63,7 +63,7 @@ from iso15118.shared.messages.iso15118_2.datatypes import (
     ProfileEntryDetails,
     SAScheduleTuple,
 )
-from iso15118.shared.messages.iso15118_20.ac import (
+from iso15118.shared_evcc.messages.iso15118_20.ac import (
     ACChargeParameterDiscoveryReqParams,
     BPTACChargeParameterDiscoveryReqParams,
     BPTDynamicACChargeLoopReqParams,
@@ -71,10 +71,10 @@ from iso15118.shared.messages.iso15118_20.ac import (
     DynamicACChargeLoopReqParams,
     ScheduledACChargeLoopReqParams,
 )
-from iso15118.shared.messages.iso15118_20.common_messages import (
+from iso15118.shared_evcc.messages.iso15118_20.common_messages import (
     ChargeProgress as ChargeProgressV20,
 )
-from iso15118.shared.messages.iso15118_20.common_messages import (
+from iso15118.shared_evcc.messages.iso15118_20.common_messages import (
     DynamicEVPowerProfile,
     DynamicScheduleExchangeReqParams,
     DynamicScheduleExchangeResParams,
@@ -96,11 +96,11 @@ from iso15118.shared.messages.iso15118_20.common_messages import (
     SelectedEnergyService,
     SelectedVAS,
 )
-from iso15118.shared.messages.iso15118_20.common_types import (
+from iso15118.shared_evcc.messages.iso15118_20.common_types import (
     DisplayParameters,
     RationalNumber,
 )
-from iso15118.shared.messages.iso15118_20.dc import (
+from iso15118.shared_evcc.messages.iso15118_20.dc import (
     BPTDCChargeParameterDiscoveryReqParams,
     BPTDynamicDCChargeLoopReqParams,
     BPTScheduledDCChargeLoopReqParams,
@@ -108,7 +108,7 @@ from iso15118.shared.messages.iso15118_20.dc import (
     DynamicDCChargeLoopReqParams,
     ScheduledDCChargeLoopReqParams,
 )
-from iso15118.shared.network import get_nic_mac_address
+from iso15118.shared_evcc.network import get_nic_mac_address
 
 logger = logging.getLogger(__name__)
 

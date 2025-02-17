@@ -6,21 +6,21 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import List, Optional, Tuple, Union
 
-from iso15118.shared.messages.datatypes import (
+from iso15118.shared_evcc.messages.datatypes import (
     DCEVChargeParams,
     PVEVSEPresentVoltage,
     PVRemainingTimeToBulkSOC,
     PVRemainingTimeToFullSOC,
 )
-from iso15118.shared.messages.din_spec.datatypes import (
+from iso15118.shared_evcc.messages.din_spec.datatypes import (
     DCEVPowerDeliveryParameter as DCEVPowerDeliveryParameterDINSPEC,
 )
-from iso15118.shared.messages.din_spec.datatypes import DCEVStatus as DCEVStatusDINSPEC
-from iso15118.shared.messages.din_spec.datatypes import (
+from iso15118.shared_evcc.messages.din_spec.datatypes import DCEVStatus as DCEVStatusDINSPEC
+from iso15118.shared_evcc.messages.din_spec.datatypes import (
     SAScheduleTupleEntry as SAScheduleTupleEntryDINSPEC,
 )
-from iso15118.shared.messages.enums import ControlMode, Protocol, ServiceV20
-from iso15118.shared.messages.iso15118_2.datatypes import (
+from iso15118.shared_evcc.messages.enums import ControlMode, Protocol, ServiceV20
+from iso15118.shared_evcc.messages.iso15118_2.datatypes import (
     ACEVChargeParameter,
     ChargeProgress,
     ChargingProfile,
@@ -30,7 +30,7 @@ from iso15118.shared.messages.iso15118_2.datatypes import (
     EnergyTransferModeEnum,
     SAScheduleTuple,
 )
-from iso15118.shared.messages.iso15118_20.ac import (
+from iso15118.shared_evcc.messages.iso15118_20.ac import (
     ACChargeParameterDiscoveryReqParams,
     BPTACChargeParameterDiscoveryReqParams,
     BPTDynamicACChargeLoopReqParams,
@@ -38,10 +38,10 @@ from iso15118.shared.messages.iso15118_20.ac import (
     DynamicACChargeLoopReqParams,
     ScheduledACChargeLoopReqParams,
 )
-from iso15118.shared.messages.iso15118_20.common_messages import (
+from iso15118.shared_evcc.messages.iso15118_20.common_messages import (
     ChargeProgress as ChargeProgressV20,
 )
-from iso15118.shared.messages.iso15118_20.common_messages import (
+from iso15118.shared_evcc.messages.iso15118_20.common_messages import (
     DynamicScheduleExchangeReqParams,
     DynamicScheduleExchangeResParams,
     EMAIDList,
@@ -52,11 +52,11 @@ from iso15118.shared.messages.iso15118_20.common_messages import (
     SelectedEnergyService,
     SelectedVAS,
 )
-from iso15118.shared.messages.iso15118_20.common_types import (
+from iso15118.shared_evcc.messages.iso15118_20.common_types import (
     DisplayParameters,
     RationalNumber,
 )
-from iso15118.shared.messages.iso15118_20.dc import (
+from iso15118.shared_evcc.messages.iso15118_20.dc import (
     BPTDCChargeParameterDiscoveryReqParams,
     BPTDynamicDCChargeLoopReqParams,
     BPTScheduledDCChargeLoopReqParams,

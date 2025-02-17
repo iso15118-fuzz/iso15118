@@ -19,18 +19,18 @@ from iso15118.evcc.controller.interface import EVControllerInterface
 from iso15118.evcc.evcc_config import EVCCConfig
 from iso15118.evcc.transport.tcp_client import TCPClient
 from iso15118.evcc.transport.udp_client import UDPClient
-from iso15118.shared.comm_session import V2GCommunicationSession
-from iso15118.shared.exceptions import (
+from iso15118.shared_evcc.comm_session import V2GCommunicationSession
+from iso15118.shared_evcc.exceptions import (
     InvalidSDPResponseError,
     InvalidSettingsValueError,
     InvalidV2GTPMessageError,
     MessageProcessingError,
     SDPFailedError,
 )
-from iso15118.shared.exi_codec import EXI
-from iso15118.shared.iexi_codec import IEXICodec
-from iso15118.shared.messages.app_protocol import AppProtocol, SupportedAppProtocolReq
-from iso15118.shared.messages.enums import (
+from iso15118.shared_evcc.exi_codec import EXI
+from iso15118.shared_evcc.iexi_codec import IEXICodec
+from iso15118.shared_evcc.messages.app_protocol import AppProtocol, SupportedAppProtocolReq
+from iso15118.shared_evcc.messages.enums import (
     AuthEnum,
     DINPayloadTypes,
     EnergyTransferModeEnum,
@@ -39,29 +39,29 @@ from iso15118.shared.messages.enums import (
     Namespace,
     Protocol,
 )
-from iso15118.shared.messages.iso15118_2.datatypes import (
+from iso15118.shared_evcc.messages.iso15118_2.datatypes import (
     ChargingSession as ChargingSessionV2,
 )
-from iso15118.shared.messages.iso15118_20.common_messages import (
+from iso15118.shared_evcc.messages.iso15118_20.common_messages import (
     AuthorizationReq,
 )
-from iso15118.shared.messages.iso15118_20.common_messages import (
+from iso15118.shared_evcc.messages.iso15118_20.common_messages import (
     ChargingSession as ChargingSessionV20,
 )
-from iso15118.shared.messages.iso15118_20.common_messages import (
+from iso15118.shared_evcc.messages.iso15118_20.common_messages import (
     ScheduleExchangeReq,
     ScheduleExchangeRes,
 )
-from iso15118.shared.messages.iso15118_20.common_types import Processing
-from iso15118.shared.messages.sdp import SDPRequest, SDPResponse, Security, Transport
-from iso15118.shared.messages.timeouts import Timeouts
-from iso15118.shared.messages.v2gtp import V2GTPMessage
-from iso15118.shared.notifications import (
+from iso15118.shared_evcc.messages.iso15118_20.common_types import Processing
+from iso15118.shared_evcc.messages.sdp import SDPRequest, SDPResponse, Security, Transport
+from iso15118.shared_evcc.messages.timeouts import Timeouts
+from iso15118.shared_evcc.messages.v2gtp import V2GTPMessage
+from iso15118.shared_evcc.notifications import (
     ReceiveTimeoutNotification,
     StopNotification,
     UDPPacketNotification,
 )
-from iso15118.shared.utils import cancel_task, wait_for_tasks
+from iso15118.shared_evcc.utils import cancel_task, wait_for_tasks
 
 logger = logging.getLogger(__name__)
 

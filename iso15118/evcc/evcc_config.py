@@ -4,12 +4,12 @@ from typing import List, Optional
 
 from aiofile import async_open
 
-from iso15118.shared.messages.enums import (
+from iso15118.shared_evcc.messages.enums import (
     EnergyTransferModeEnum,
     Protocol,
     ServiceV20,
 )
-from iso15118.shared.utils import (
+from iso15118.shared_evcc.utils import (
     load_requested_energy_services,
     load_requested_protocols,
 )
