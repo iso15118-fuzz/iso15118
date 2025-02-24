@@ -21,7 +21,7 @@ async def main():
         ev_config_file_path = sys.argv[1]
         if ev_config_file_path:
             config.ev_config_file_path = ev_config_file_path
-    evcc_config = await load_from_file(config.ev_config_file_path)
+    evcc_config = load_from_file(config.ev_config_file_path)
     await EVCCHandler(
         evcc_config=evcc_config,
         iface=config.iface,
