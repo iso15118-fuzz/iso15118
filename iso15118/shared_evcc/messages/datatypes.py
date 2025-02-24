@@ -37,29 +37,6 @@ class PhysicalValue(BaseModel):
     # XSD type byte with value range [-3..3]
     multiplier: int = Field(..., alias="Multiplier")
 
-    # @root_validator
-    # def validate_value_range(cls, values):
-    #     """
-    #     Validator for the range of the PhysicalValue type
-
-    #     Raises:
-    #         ValueError, if the calculated value exceeds the limits set
-    #     """
-    #     value = values.get("value")
-    #     multiplier = values.get("multiplier")
-    #     calculated_value = value * 10**multiplier
-    #     if (
-    #         0 < cls._max_limit < calculated_value
-    #         or calculated_value < cls._min_limit < 0
-    #     ):
-    #         raise ValueError(
-    #             f"{cls.__name__[2:] }"  # type: ignore[attr-defined]
-    #             f"value limit exceeded: {calculated_value} \n"
-    #             f"Max: {cls._max_limit} \n"
-    #             f"Min: {cls._min_limit}"
-    #         )
-    #     return values
-
     def get_decimal_value(self) -> float:
         return self.value * 10**self.multiplier
 

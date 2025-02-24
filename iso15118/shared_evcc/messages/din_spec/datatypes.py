@@ -34,7 +34,6 @@ from iso15118.shared_evcc.messages.enums import (
     DCEVErrorCode,
     EnergyTransferModeEnum,
 )
-from iso15118.shared_evcc.validators import one_field_must_be_set
 
 # https://pydantic-docs.helpmanual.io/usage/types/#constrained-types
 # constrained types
@@ -172,37 +171,6 @@ class Parameter(BaseModel):
     physical_value: PhysicalValue = Field(None, alias="physicalValue")
     str_value: str = Field(None, alias="stringValue")
     value_type: ValueType = Field(..., alias="ValueType")
-
-    @root_validator(pre=True)
-    def at_least_one_parameter_value(cls, values):
-        """
-        Either bool_value, byte_value, short_value, int_value, physical_value,
-        or str_value must be set, depending on the datatype of the parameter.
-
-        Pydantic validators are "class methods",
-        see https://pydantic-docs.helpmanual.io/usage/validators/
-        """
-        # pylint: disable=no-self-argument
-        # pylint: disable=no-self-use
-        if one_field_must_be_set(
-            [
-                "bool_value",
-                "boolValue",
-                "byte_value",
-                "byteValue",
-                "short_value",
-                "shortValue",
-                "int_value",
-                "intValue",
-                "physical_value",
-                "physicalValue",
-                "str_value",
-                "stringValue",
-            ],
-            values,
-            True,
-        ):
-            return values
 
 
 class ParameterSet(BaseModel):
@@ -391,7 +359,7 @@ class AuthOptionList(BaseModel):
     """
 
     auth_options: List[AuthEnum] = Field(
-        ..., min_items=1, alias="PaymentOption"
+        ..., alias="PaymentOption"
     )
 
 

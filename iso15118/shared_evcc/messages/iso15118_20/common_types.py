@@ -51,26 +51,6 @@ class MessageHeader(BaseModel):
     timestamp: int = Field(..., alias="TimeStamp")
     signature: Signature = Field(None, alias="Signature")
 
-    @validator("session_id")
-    def check_sessionid_is_hexbinary(cls, value):
-        """
-        Checks whether the session_id field is a hexadecimal representation of
-        8 bytes.
-
-        Pydantic validators are "class methods",
-        see https://pydantic-docs.helpmanual.io/usage/validators/
-        """
-        # pylint: disable=no-self-argument
-        # pylint: disable=no-self-use
-        try:
-            int(value, 16)
-            return value
-        except ValueError as exc:
-            raise ValueError(
-                f"Invalid value '{value}' for SessionID (must be "
-                f"hexadecimal representation of max 8 bytes)"
-            ) from exc
-
 
 class V2GMessage(BaseModel, ABC):
     """See section 8.3 in ISO 15118-20
@@ -274,9 +254,7 @@ class Receipt(BaseModel):
         None, alias="AdditionalServicesCosts"
     )
     overstay_costs: DetailedCost = Field(None, alias="OverstayCosts")
-    tax_costs: List[DetailedTax] = Field(
-        None, min_items=0, alias="TaxCosts"
-    )
+    tax_costs: List[DetailedTax] = Field(None, alias="TaxCosts")
 
 
 class ChargeLoopRes(V2GResponse, ABC):
@@ -364,6 +342,4 @@ class Processing(str, Enum):
 class RootCertificateIDList(BaseModel):
     """See section 8.3.5.3.27 in ISO 15118-20"""
 
-    root_cert_ids: List[X509IssuerSerial] = Field(
-        ..., alias="RootCertificateID"
-    )
+    root_cert_ids: List[X509IssuerSerial] = Field(..., alias="RootCertificateID")

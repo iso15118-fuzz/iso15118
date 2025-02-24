@@ -44,7 +44,6 @@ from iso15118.shared_evcc.messages.iso15118_20.common_types import (
     V2GRequest,
     V2GResponse,
 )
-from iso15118.shared_evcc.validators import one_field_must_be_set
 
 
 class ECDHCurve(str, Enum):
@@ -125,12 +124,8 @@ class ProviderID(BaseModel):
 class PnCAuthSetupResParams(BaseModel):
     """See section 8.3.4.3.2.1 in ISO 15118-20"""
 
-    gen_challenge: bytes = Field(
-        ..., alias="GenChallenge"
-    )
-    supported_providers: List[ProviderID] = Field(
-        None, alias="SupportedProviders"
-    )
+    gen_challenge: bytes = Field(..., alias="GenChallenge")
+    supported_providers: List[ProviderID] = Field(None, alias="SupportedProviders")
 
 
 class EIMAuthSetupResParams(BaseModel):
@@ -140,36 +135,10 @@ class EIMAuthSetupResParams(BaseModel):
 class AuthorizationSetupRes(V2GResponse):
     """See section 8.3.4.3.2.2 in ISO 15118-20"""
 
-    auth_services: List[AuthEnum] = Field(
-        ..., alias="AuthorizationServices"
-    )
+    auth_services: List[AuthEnum] = Field(..., alias="AuthorizationServices")
     cert_install_service: bool = Field(..., alias="CertificateInstallationService")
     pnc_as_res: PnCAuthSetupResParams = Field(None, alias="PnC_ASResAuthorizationMode")
     eim_as_res: EIMAuthSetupResParams = Field(None, alias="EIM_ASResAuthorizationMode")
-
-    @root_validator(pre=True)
-    def exactly_one_authorization_mode(cls, values):
-        """
-        Either pnc_as_res orand eim_as_res must be set, depending on
-        whether both Plug & Charge is offered or not. In the latter case, only
-        eim_as_res modes is offered.
-
-        Pydantic validators are "class methods",
-        see https://pydantic-docs.helpmanual.io/usage/validators/
-        """
-        # pylint: disable=no-self-argument
-        # pylint: disable=no-self-use
-        if one_field_must_be_set(
-            [
-                "pnc_as_res",
-                "PnC_ASResAuthorizationMode",
-                "eim_as_res",
-                "EIM_ASResAuthorizationMode",
-            ],
-            values,
-            True,
-        ):
-            return values
 
 
 class PnCAuthReqParams(BaseModel):
@@ -181,9 +150,7 @@ class PnCAuthReqParams(BaseModel):
     # 'Id' is actually an XML attribute, but JSON (our serialisation method)
     # doesn't have attributes. The EXI codec has to en-/decode accordingly.
     id: str = Field(None, alias="Id")
-    gen_challenge: bytes = Field(
-        ..., alias="GenChallenge"
-    )
+    gen_challenge: bytes = Field(..., alias="GenChallenge")
     contract_cert_chain: ContractCertificateChain = Field(
         ..., alias="ContractCertificateChain"
     )
@@ -207,30 +174,6 @@ class AuthorizationReq(V2GRequest):
     selected_auth_service: AuthEnum = Field(..., alias="SelectedAuthorizationService")
     pnc_params: PnCAuthReqParams = Field(None, alias="PnC_AReqAuthorizationMode")
     eim_params: EIMAuthReqParams = Field(None, alias="EIM_AReqAuthorizationMode")
-
-    @root_validator(pre=True)
-    def at_least_one_authorization_mode(cls, values):
-        """
-        At least one of pnc_params and eim_params must be set, depending on
-        whether both Plug & Charge and EIM or just one of these authorization
-        modes is offered.
-
-        Pydantic validators are "class methods",
-        see https://pydantic-docs.helpmanual.io/usage/validators/
-        """
-        # pylint: disable=no-self-argument
-        # pylint: disable=no-self-use
-        if one_field_must_be_set(
-            [
-                "pnc_params",
-                "PnC_AReqAuthorizationMode",
-                "eim_params",
-                "EIM_AReqAuthorizationMode",
-            ],
-            values,
-            False,
-        ):
-            return values
 
 
 class AuthorizationRes(V2GResponse):
@@ -295,38 +238,6 @@ class Parameter(BaseModel):
     rational_number: RationalNumber = Field(None, alias="rationalNumber")
     finite_str: Name = Field(None, alias="finiteString")
 
-    @root_validator(pre=True)
-    def at_least_one_parameter_value(cls, values):
-        """
-        Either bool_value, byte_value, short_value, int_value, rational_number,
-        or finite_str must be set, depending on the datatype of the parameter.
-
-        Pydantic validators are "class methods",
-        see https://pydantic-docs.helpmanual.io/usage/validators/
-        """
-        # pylint: disable=no-self-argument
-        # pylint: disable=no-self-use
-        if one_field_must_be_set(
-            [
-                "bool_value",
-                "boolValue",
-                "byte_value",
-                "byteValue",
-                "short_value",
-                "shortValue",
-                "int_value",
-                "intValue",
-                "rational_number",
-                "rationalNumber",
-                "finite_str",
-                "finiteString",
-            ],
-            values,
-            True,
-        ):
-            return values
-
-
 class ParameterSet(BaseModel):
     """See section 8.3.5.3.22 in ISO 15118-20"""
 
@@ -359,9 +270,7 @@ class SelectedService(BaseModel):
 class SelectedServiceList(BaseModel):
     """See section 8.3.5.3.24 in ISO 15118-20"""
 
-    selected_services: List[SelectedService] = Field(
-        ..., alias="SelectedService"
-    )
+    selected_services: List[SelectedService] = Field(..., alias="SelectedService")
 
 
 class ServiceSelectionReq(V2GRequest):
@@ -387,9 +296,7 @@ class EVPowerScheduleEntry(BaseModel):
 class EVPowerScheduleEntryList(BaseModel):
     """See section 8.3.5.3.43 in ISO 15118-20"""
 
-    entries: List[EVPowerScheduleEntry] = Field(
-        ..., alias="EVPowerScheduleEntry"
-    )
+    entries: List[EVPowerScheduleEntry] = Field(..., alias="EVPowerScheduleEntry")
 
 
 class EVPowerSchedule(BaseModel):
@@ -418,9 +325,7 @@ class EVPriceRuleStack(BaseModel):
 class EVPriceRuleStackList(BaseModel):
     """See section 8.3.5.3.46 in ISO 15118-20"""
 
-    ev_price_rule_stacks: List[EVPriceRuleStack] = Field(
-        ..., alias="EVPriceRuleStack"
-    )
+    ev_price_rule_stacks: List[EVPriceRuleStack] = Field(..., alias="EVPriceRuleStack")
 
 
 class EVAbsolutePriceSchedule(BaseModel):
@@ -471,67 +376,17 @@ class DynamicScheduleExchangeReqParams(BaseModel):
         None, alias="EVMinimumV2XEnergyRequest"
     )
 
-    @root_validator(pre=True)
-    def both_v2x_fields_must_be_set(cls, values):
-        max_v2x, min_v2x = (
-            values.get("ev_max_v2x_energy_request"),
-            values.get("ev_min_v2x_energy_request"),
-        )
-
-        if max_v2x is None and min_v2x is None:
-            # When decoding from EXI to JSON dict
-            max_v2x, min_v2x = (
-                values.get("EVMaximumV2XEnergyRequest"),
-                values.get("EVMinimumV2XEnergyRequest"),
-            )
-
-        if (max_v2x and not min_v2x) or (min_v2x and not max_v2x):
-            raise ValueError(
-                "EVMaximumV2XEnergyRequest and EVMinimumV2XEnergyRequest of type "
-                "Dynamic_SEReqControlModeType must either be both set or both omitted. "
-                "Only one of them was set ([V2G20-2681])"
-            )
-
-        return values
-
 
 class ScheduleExchangeReq(V2GRequest):
     """See section 8.3.4.3.7.2 in ISO 15118-20"""
 
-    max_supporting_points: int = Field(
-        ..., alias="MaximumSupportingPoints"
-    )
+    max_supporting_points: int = Field(..., alias="MaximumSupportingPoints")
     scheduled_params: ScheduledScheduleExchangeReqParams = Field(
         None, alias="Scheduled_SEReqControlMode"
     )
     dynamic_params: DynamicScheduleExchangeReqParams = Field(
         None, alias="Dynamic_SEReqControlMode"
     )
-
-    @root_validator(pre=True)
-    def either_scheduled_or_dynamic(cls, values):
-        """
-        Either scheduled_params or dynamic_params must be set, depending on
-        whether the charging process is governed by charging schedules or
-        dynamic charging settings from the SECC.
-
-        Pydantic validators are "class methods",
-        see https://pydantic-docs.helpmanual.io/usage/validators/
-        """
-        # pylint: disable=no-self-argument
-        # pylint: disable=no-self-use
-        if one_field_must_be_set(
-            [
-                "scheduled_params",
-                "Scheduled_SEReqControlMode",
-                "dynamic_params",
-                "Dynamic_SEReqControlMode",
-            ],
-            values,
-            True,
-        ):
-            return values
-
 
 class PowerScheduleEntry(BaseModel):
     """See section 8.3.5.3.20 in ISO 15118-20"""
@@ -545,9 +400,7 @@ class PowerScheduleEntry(BaseModel):
 class PowerScheduleEntryList(BaseModel):
     """See section 8.3.5.3.19 in ISO 15118-20"""
 
-    entries: List[PowerScheduleEntry] = Field(
-        ..., alias="PowerScheduleEntry"
-    )
+    entries: List[PowerScheduleEntry] = Field(..., alias="PowerScheduleEntry")
 
 
 class PowerSchedule(BaseModel):
@@ -580,9 +433,7 @@ class PriceLevelScheduleEntry(BaseModel):
 class PriceLevelScheduleEntryList(BaseModel):
     """See section 8.3.5.3.63 in ISO 15118-20"""
 
-    entries: List[PriceLevelScheduleEntry] = Field(
-        ..., alias="PriceLevelScheduleEntry"
-    )
+    entries: List[PriceLevelScheduleEntry] = Field(..., alias="PriceLevelScheduleEntry")
 
 
 class PriceLevelSchedule(PriceSchedule):
@@ -643,9 +494,7 @@ class PriceRuleStack(BaseModel):
 class PriceRuleStackList(BaseModel):
     """See section 8.3.5.3.52 in ISO 15118-20"""
 
-    price_rule_stacks: List[PriceRuleStack] = Field(
-        ..., alias="PriceRuleStack"
-    )
+    price_rule_stacks: List[PriceRuleStack] = Field(..., alias="PriceRuleStack")
 
 
 class OverstayRule(BaseModel):
@@ -660,9 +509,7 @@ class OverstayRule(BaseModel):
 class OverstayRuleList(BaseModel):
     """See section 8.3.5.3.55 in ISO 15118-20"""
 
-    time_threshold: int = Field(
-        None, alias="OverstayTimeThreshold"
-    )
+    time_threshold: int = Field(None, alias="OverstayTimeThreshold")
     power_threshold: RationalNumber = Field(None, alias="OverstayPowerThreshold")
     rules: List[OverstayRule] = Field(..., alias="OverstayRule")
 
@@ -677,9 +524,7 @@ class AdditionalService(BaseModel):
 class AdditionalServiceList(BaseModel):
     """See section 8.3.5.3.57 in ISO 15118-20"""
 
-    additional_services: List[AdditionalService] = Field(
-        ..., alias="AdditionalService"
-    )
+    additional_services: List[AdditionalService] = Field(..., alias="AdditionalService")
 
 
 class AbsolutePriceSchedule(PriceSchedule):
@@ -710,30 +555,6 @@ class ChargingSchedule(BaseModel):
         None, alias="AbsolutePriceSchedule"
     )
 
-    @root_validator(pre=True)
-    def either_price_levels_or_absolute_prices(cls, values):
-        """
-        Either price_level_schedule or absolute_price_schedule must be set,
-        depending on whether abstract price levels or absolute prices are used
-        to indicate costs for the charging session.
-
-        Pydantic validators are "class methods",
-        see https://pydantic-docs.helpmanual.io/usage/validators/
-        """
-        # pylint: disable=no-self-argument
-        # pylint: disable=no-self-use
-        if one_field_must_be_set(
-            [
-                "price_level_schedule",
-                "PriceLevelSchedule",
-                "absolute_price_schedule",
-                "AbsolutePriceSchedule",
-            ],
-            values,
-            True,
-        ):
-            return values
-
 
 class DischargingSchedule(BaseModel):
     """See section 8.3.5.3.40 in ISO 15118-20"""
@@ -743,34 +564,6 @@ class DischargingSchedule(BaseModel):
     absolute_price_schedule: AbsolutePriceSchedule = Field(
         None, alias="AbsolutePriceSchedule"
     )
-
-    # TODO Need to add a root validator to check if power schedule entries are negative
-    #      for discharging (also heck other discharging fields in other types)
-
-    @root_validator(pre=True)
-    def either_price_levels_or_absolute_prices(cls, values):
-        """
-        Either price_level_schedule or absolute_price_schedule must be set,
-        depending on abstract price levels or absolute prices are used to
-        indicate costs for the charging session.
-
-        Pydantic validators are "class methods",
-        see https://pydantic-docs.helpmanual.io/usage/validators/
-        """
-        # pylint: disable=no-self-argument
-        # pylint: disable=no-self-use
-        if one_field_must_be_set(
-            [
-                "price_level_schedule",
-                "PriceLevelSchedule",
-                "absolute_price_schedule",
-                "AbsolutePriceSchedule",
-            ],
-            values,
-            True,
-        ):
-            return values
-
 
 class ScheduleTuple(BaseModel):
     """See section 8.3.5.3.17 in ISO 15118-20"""
@@ -783,9 +576,7 @@ class ScheduleTuple(BaseModel):
 class ScheduledScheduleExchangeResParams(BaseModel):
     """See section 8.3.5.3.16 in ISO 15118-20"""
 
-    schedule_tuples: List[ScheduleTuple] = Field(
-        ..., alias="ScheduleTuple"
-    )
+    schedule_tuples: List[ScheduleTuple] = Field(..., alias="ScheduleTuple")
 
 
 class DynamicScheduleExchangeResParams(BaseModel):
@@ -801,31 +592,6 @@ class DynamicScheduleExchangeResParams(BaseModel):
         None, alias="AbsolutePriceSchedule"
     )
 
-    @root_validator(pre=True)
-    def min_soc_less_than_or_equal_to_target_soc(cls, values):
-        """
-        The min_soc value must be smaller or equal to target_soc ([V2G20-1640]).
-
-        Pydantic validators are "class methods",
-        see https://pydantic-docs.helpmanual.io/usage/validators/
-        """
-        # pylint: disable=no-self-argument
-        # pylint: disable=no-self-use
-        # TODO Also check other classes that contain min_soc and target_soc
-        min_soc, target_soc = values.get("min_soc"), values.get("target_soc")
-        if min_soc is None and target_soc is None:
-            # When decoding from EXI to JSON dict
-            min_soc, target_soc = values.get("MinimumSOC"), values.get("TargetSOC")
-
-        if (min_soc and target_soc) and min_soc > target_soc:
-            raise ValueError(
-                "MinimumSOC must be less than or equal to TargetSOC.\n"
-                f"MinimumSOC: {min_soc}, TargetSOC: {target_soc}"
-            )
-
-        return values
-
-
 class ScheduleExchangeRes(V2GResponse):
     """See section 8.3.4.3.7.3 in ISO 15118-20"""
 
@@ -838,46 +604,10 @@ class ScheduleExchangeRes(V2GResponse):
     )
     go_to_pause: bool = Field(None, alias="GoToPause")
 
-    @root_validator(pre=True)
-    def either_scheduled_or_dynamic(cls, values):
-        """
-        Either scheduled_params or dynamic_params must be set, depending on
-        whether the charging process is governed by charging schedules or
-        dynamic charging settings from the SECC.
-
-        Pydantic validators are "class methods",
-        see https://pydantic-docs.helpmanual.io/usage/validators/
-        """
-        # pylint: disable=no-self-argument
-        # pylint: disable=no-self-use
-        evse_processing = values.get("evse_processing")
-        if evse_processing is None:
-            # When decoding from EXI to JSON dict
-            evse_processing = values.get("EVSEProcessing")
-        if evse_processing == Processing.ONGOING:
-            return values
-
-        # Check if either the dynamic or scheduled parameters are set, but only in case
-        # evse_processing is set to FINISHED
-        if one_field_must_be_set(
-            [
-                "scheduled_params",
-                "Scheduled_SEResControlMode",
-                "dynamic_params",
-                "Dynamic_SEResControlMode",
-            ],
-            values,
-            True,
-        ):
-            return values
-
-
 class EVPowerProfileEntryList(BaseModel):
     """See section 8.3.5.3.10 in ISO 15118-20"""
 
-    entries: List[PowerScheduleEntry] = Field(
-        ..., alias="EVPowerProfileEntry"
-    )
+    entries: List[PowerScheduleEntry] = Field(..., alias="EVPowerProfileEntry")
 
 
 class PowerToleranceAcceptance(str, Enum):
@@ -912,30 +642,6 @@ class EVPowerProfile(BaseModel):
         None, alias="Dynamic_EVPPTControlMode"
     )
 
-    @root_validator(pre=True)
-    def either_scheduled_or_dynamic(cls, values):
-        """
-        Either scheduled_profile or dynamic_profile must be set, depending on whether
-        the charging process is governed by charging schedules or dynamic charging
-        settings from the SECC.
-
-        Pydantic validators are "class methods",
-        see https://pydantic-docs.helpmanual.io/usage/validators/
-        """
-        # pylint: disable=no-self-argument
-        # pylint: disable=no-self-use
-        if one_field_must_be_set(
-            [
-                "scheduled_profile",
-                "Scheduled_EVPPTControlMode",
-                "dynamic_profile",
-                "Dynamic_EVPPTControlMode",
-            ],
-            values,
-            True,
-        ):
-            return values
-
 
 class ChannelSelection(str, Enum):
     """See section 8.3.4.3.8.2 in ISO 15118-20"""
@@ -960,46 +666,6 @@ class PowerDeliveryReq(V2GRequest):
     charge_progress: ChargeProgress = Field(..., alias="ChargeProgress")
     ev_power_profile: EVPowerProfile = Field(None, alias="EVPowerProfile")
     bpt_channel_selection: ChannelSelection = Field(None, alias="BPT_ChannelSelection")
-
-    @root_validator(pre=True)
-    def set_ev_power_profile_if_processing_finished_and_start_charging(cls, values):
-        """
-        The optional ev_power_profile field must be set once the EVCC finishes
-        processing, thereby setting the field ev_processing to FINISHED, and if the
-        charge_progress is set to START.
-
-        Pydantic validators are "class methods",
-        see https://pydantic-docs.helpmanual.io/usage/validators/
-        """
-        # pylint: disable=no-self-argument
-        # pylint: disable=no-self-use
-
-        ev_processing = values.get("ev_processing")
-        charge_progress = values.get("charge_progress")
-        if ev_processing is None:
-            # When decoding from EXI to JSON dict
-            ev_processing = values.get("EVProcessing")
-        if charge_progress is None:
-            # When decoding from EXI to JSON dict
-            charge_progress = values.get("ChargeProgress")
-        if (
-            ev_processing == Processing.ONGOING
-            or charge_progress == ChargeProgress.STOP
-        ):
-            return values
-
-        ev_power_profile = values.get("ev_power_profile")
-        if ev_power_profile is None:
-            # When decoding from EXI to JSON dict
-            ev_power_profile = values.get("EVPowerProfile")
-
-        if ev_power_profile is None:
-            raise ValueError(
-                "EVPowerProfile is not set although EVProcessing is set to FINISHED"
-            )
-
-        return values
-
 
 class PowerDeliveryRes(V2GResponse):
     """See section 8.3.4.3.8.3 in ISO 15118-20"""
@@ -1033,50 +699,6 @@ class SignedMeteringData(BaseModel):
         None, alias="Dynamic_SMDTControlMode"
     )
 
-    @root_validator(pre=True)
-    def either_scheduled_or_dynamic(cls, values):
-        """
-        Either scheduled_smart_meter_data or dynamic_smart_meter_data must be
-        set, depending on whether the charging process is governed by charging s
-        chedules or dynamic charging settings from the SECC.
-
-        Pydantic validators are "class methods",
-        see https://pydantic-docs.helpmanual.io/usage/validators/
-        """
-        # pylint: disable=no-self-argument
-        # pylint: disable=no-self-use
-        if one_field_must_be_set(
-            [
-                "scheduled_smart_meter_data",
-                "Scheduled_SMDTControlMode",
-                "dynamic_smart_meter_data",
-                "Dynamic_SMDTControlMode",
-            ],
-            values,
-            True,
-        ):
-            return values
-
-        @validator("session_id")
-        def check_sessionid_is_hexbinary(cls, value):
-            """
-            Checks whether the session_id field is a hexadecimal representation of
-            8 bytes.
-
-            Pydantic validators are "class methods",
-            see https://pydantic-docs.helpmanual.io/usage/validators/
-            """
-            # pylint: disable=no-self-argument
-            # pylint: disable=no-self-use
-            try:
-                int(value, 16)
-                return value
-            except ValueError as exc:
-                raise ValueError(
-                    f"Invalid value '{value}' for SessionID (must be "
-                    f"hexadecimal representation of max 8 bytes)"
-                ) from exc
-
 
 class MeteringConfirmationReq(V2GRequest):
     """See section 8.3.4.3.11.2 in ISO 15118-20"""
@@ -1101,9 +723,7 @@ class SessionStopReq(V2GRequest):
 
     charging_session: ChargingSession = Field(..., alias="ChargingSession")
     ev_termination_code: Name = Field(None, alias="EVTerminationCode")
-    ev_termination_explanation: str = Field(
-        None, alias="EVTerminationExplanation"
-    )
+    ev_termination_explanation: str = Field(None, alias="EVTerminationExplanation")
 
 
 class SessionStopRes(V2GResponse):
@@ -1140,39 +760,8 @@ class SignedInstallationData(BaseModel):
     secp521_encrypted_private_key: bytes = Field(
         None, alias="SECP521_EncryptedPrivateKey"
     )
-    x448_encrypted_private_key: bytes = Field(
-        None, alias="X448_EncryptedPrivateKey"
-    )
-    tpm_encrypted_private_key: bytes = Field(
-        None, alias="TPM_EncryptedPrivateKey"
-    )
-
-    @root_validator(pre=True)
-    def one_encryption_mode(cls, values):
-        """
-        Either secp521_encrypted_private_key or x448_encrypted_private_key or
-        tpm_encrypted_private_key must be set, depending on which encryption
-        algorithm is used to encrypt the private key associated with the
-        contract certificate.
-
-        Pydantic validators are "class methods",
-        see https://pydantic-docs.helpmanual.io/usage/validators/
-        """
-        # pylint: disable=no-self-argument
-        # pylint: disable=no-self-use
-        if one_field_must_be_set(
-            [
-                "secp521_encrypted_private_key",
-                "SECP521_EncryptedPrivateKey",
-                "x448_encrypted_private_key",
-                "X448_EncryptedPrivateKey",
-                "tpm_encrypted_private_key",
-                "TPM_EncryptedPrivateKey",
-            ],
-            values,
-            True,
-        ):
-            return values
+    x448_encrypted_private_key: bytes = Field(None, alias="X448_EncryptedPrivateKey")
+    tpm_encrypted_private_key: bytes = Field(None, alias="TPM_EncryptedPrivateKey")
 
 
 class CertificateInstallationRes(V2GResponse):

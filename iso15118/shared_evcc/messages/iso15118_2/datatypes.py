@@ -46,7 +46,6 @@ from iso15118.shared_evcc.messages.enums import (
     EnergyTransferModeEnum,
 )
 from iso15118.shared_evcc.messages.xmldsig import X509IssuerSerial
-from iso15118.shared_evcc.validators import one_field_must_be_set
 
 # https://pydantic-docs.helpmanual.io/usage/types/#constrained-types
 # constrained types
@@ -356,37 +355,6 @@ class Parameter(BaseModel):
     physical_value: PhysicalValue = Field(None, alias="physicalValue")
     str_value: str = Field(None, alias="stringValue")
 
-    @root_validator(pre=True)
-    def at_least_one_parameter_value(cls, values):
-        """
-        Either bool_value, byte_value, short_value, int_value, physical_value,
-        or str_value must be set, depending on the datatype of the parameter.
-
-        Pydantic validators are "class methods",
-        see https://pydantic-docs.helpmanual.io/usage/validators/
-        """
-        # pylint: disable=no-self-argument
-        # pylint: disable=no-self-use
-        if one_field_must_be_set(
-            [
-                "bool_value",
-                "boolValue",
-                "byte_value",
-                "byteValue",
-                "short_value",
-                "shortValue",
-                "int_value",
-                "intValue",
-                "physical_value",
-                "physicalValue",
-                "str_value",
-                "stringValue",
-            ],
-            values,
-            True,
-        ):
-            return values
-
 
 class ParameterSet(BaseModel):
     """See section 8.5.2.22 in ISO 15118-2"""
@@ -407,7 +375,7 @@ class AuthOptionList(BaseModel):
     """
 
     auth_options: List[AuthEnum] = Field(
-        ..., min_items=1, alias="PaymentOption"
+        ..., alias="PaymentOption"
     )
 
 
@@ -490,23 +458,6 @@ class SalesTariffEntry(BaseModel):
         None, alias="ConsumptionCost"
     )
 
-    @validator("consumption_cost")
-    def at_least_one_cost_indicator(cls, value, values):
-        """
-        Check that either e_price_level or consumption_cost is used.
-        Both cannot be optional.
-
-        Pydantic validators are "class methods",
-        see https://pydantic-docs.helpmanual.io/usage/validators/
-        """
-        # pylint: disable=no-self-argument
-        # pylint: disable=no-self-use
-        if not value and not values.get("e_price_level"):
-            raise ValueError(
-                "At least e_price_level or consumption_cost must "
-                "be set, both cannot be optional."
-            )
-        return value
 
 
 class SalesTariff(BaseModel):
@@ -525,53 +476,6 @@ class SalesTariff(BaseModel):
     sales_tariff_entry: List[SalesTariffEntry] = Field(
         ..., alias="SalesTariffEntry"
     )
-
-    @validator("sales_tariff_entry")
-    def check_num_e_price_levels(cls, value, values):
-        """
-        If at least one sales_tariff_entry contains an e_price_level entry,
-        then num_e_price_levels must be set accordingly to the aggregate
-        number of e_price_levels across all sales_tariff_entry elements.
-
-        Pydantic validators are "class methods",
-        see https://pydantic-docs.helpmanual.io/usage/validators/
-        """
-        # pylint: disable=no-self-argument
-        # pylint: disable=no-self-
-        e_price_levels = 0
-        for sales_tariff_entry in value:
-            if (
-                "e_price_level" in sales_tariff_entry
-                or sales_tariff_entry.e_price_level
-            ):
-                e_price_levels += 1
-
-        if e_price_levels > 0 and "num_e_price_levels" not in values:
-            raise ValueError(
-                f"SalesTariff contains {e_price_levels} "
-                "distinct e_price_level entries, but field "
-                "'num_e_price_levels' is not provided."
-            )
-
-        return value
-
-    @validator("sales_tariff_id")
-    def sales_tariff_id_value_range(cls, value):
-        """
-        Checks whether the sales_tariff_id field of a SalesTariff object
-        object is within the value range [1..255].
-
-        Pydantic validators are "class methods",
-        see https://pydantic-docs.helpmanual.io/usage/validators/
-        """
-        # pylint: disable=no-self-argument
-        # pylint: disable=no-self-use
-        if not 1 <= value <= 255:
-            raise ValueError(
-                f"The value {value} is outside the allowed value "
-                f"range [1..255] for SalesTariffID"
-            )
-        return value
 
     def __str__(self):
         # The XSD conform element name

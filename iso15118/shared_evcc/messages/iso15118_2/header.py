@@ -26,24 +26,3 @@ class MessageHeader(BaseModel):
     session_id: str = Field(..., alias="SessionID")
     notification: Notification = Field(None, alias="Notification")
     signature: Signature = Field(None, alias="Signature")
-
-    @validator("session_id")
-    def check_sessionid_is_hexbinary(cls, value):
-        """
-        Checks whether the session_id field is a hexadecimal representation of
-        8 bytes.
-
-        Pydantic validators are "class methods",
-        see https://pydantic-docs.helpmanual.io/usage/validators/
-        """
-        # pylint: disable=no-self-argument
-        # pylint: disable=no-self-use
-        try:
-            # convert value to int, assuming base 16
-            int(value, 16)
-            return value
-        except ValueError as exc:
-            raise ValueError(
-                f"Invalid value '{value}' for SessionID (must be "
-                f"hexadecimal representation of max 8 bytes)"
-            ) from exc

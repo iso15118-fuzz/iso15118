@@ -28,7 +28,6 @@ from iso15118.shared_evcc.messages.iso15118_20.common_types import (
     V2GRequest,
     V2GResponse,
 )
-from iso15118.shared_evcc.validators import one_field_must_be_set
 
 
 class DCChargeParameterDiscoveryReqParams(BaseModel):
@@ -220,29 +219,6 @@ class DCChargeParameterDiscoveryReq(ChargeParameterDiscoveryReq):
         None, alias="BPT_DC_CPDReqEnergyTransferMode"
     )
 
-    @root_validator(pre=True)
-    def either_dc_or_dc_bpt_params(cls, values):
-        """
-        Either dc_params or bpt_dc_params must be set, depending on whether
-        unidirectional or bidirectional power transfer was chosen.
-
-        Pydantic validators are "class methods",
-        see https://pydantic-docs.helpmanual.io/usage/validators/
-        """
-        # pylint: disable=no-self-argument
-        # pylint: disable=no-self-use
-        if one_field_must_be_set(
-            [
-                "dc_params",
-                "DC_CPDReqEnergyTransferMode",
-                "bpt_dc_params",
-                "BPT_DC_CPDReqEnergyTransferMode",
-            ],
-            values,
-            True,
-        ):
-            return values
-
     def __str__(self):
         # The XSD-conform name
         return "DC_ChargeParameterDiscoveryReq"
@@ -257,29 +233,6 @@ class DCChargeParameterDiscoveryRes(ChargeParameterDiscoveryRes):
     bpt_dc_params: BPTDCChargeParameterDiscoveryResParams = Field(
         None, alias="BPT_DC_CPDResEnergyTransferMode"
     )
-
-    @root_validator(pre=True)
-    def either_dc_or_bpt_dc_params(cls, values):
-        """
-        Either dc_params or bpt_dc_params must be set, depending on whether
-        unidirectional or bidirectional power transfer was chosen.
-
-        Pydantic validators are "class methods",
-        see https://pydantic-docs.helpmanual.io/usage/validators/
-        """
-        # pylint: disable=no-self-argument
-        # pylint: disable=no-self-use
-        if one_field_must_be_set(
-            [
-                "dc_params",
-                "DC_CPDResEnergyTransferMode",
-                "bpt_dc_params",
-                "BPT_DC_CPDResEnergyTransferMode",
-            ],
-            values,
-            True,
-        ):
-            return values
 
     def __str__(self):
         # The XSD-conform name
@@ -302,34 +255,6 @@ class DCChargeLoopReq(ChargeLoopReq):
     bpt_dynamic_params: BPTDynamicDCChargeLoopReqParams = Field(
         None, alias="BPT_Dynamic_DC_CLReqControlMode"
     )
-
-    @root_validator(pre=True)
-    def either_scheduled_or_dynamic_bpt(cls, values):
-        """
-        Either scheduled_params or dynamic_params or bpt_scheduled_params or
-        bpt_dynamic_params must be set, depending on whether unidirectional or
-        bidirectional power transfer and whether scheduled or dynamic mode was chosen.
-
-        Pydantic validators are "class methods",
-        see https://pydantic-docs.helpmanual.io/usage/validators/
-        """
-        # pylint: disable=no-self-argument
-        # pylint: disable=no-self-use
-        if one_field_must_be_set(
-            [
-                "scheduled_params",
-                "Scheduled_DC_CLReqControlMode",
-                "dynamic_params",
-                "Dynamic_DC_CLReqControlMode",
-                "bpt_scheduled_params",
-                "BPT_Scheduled_DC_CLReqControlMode",
-                "bpt_dynamic_params",
-                "BPT_Dynamic_DC_CLReqControlMode",
-            ],
-            values,
-            True,
-        ):
-            return values
 
     def __str__(self):
         # The XSD-conform name
@@ -356,35 +281,6 @@ class DCChargeLoopRes(ChargeLoopRes):
     bpt_dynamic_dc_charge_loop_res: BPTDynamicDCChargeLoopRes = Field(
         None, alias="BPT_Dynamic_DC_CLResControlMode"
     )
-
-    @root_validator(pre=True)
-    def either_scheduled_or_dynamic_bpt(cls, values):
-        """
-        Either scheduled_dc_charge_loop_res or scheduled_dc_charge_loop_res or
-        bpt_scheduled_dc_charge_loop_res or bpt_dynamic_dc_charge_loop_res
-        must be set, depending on whether unidirectional or bidirectional power
-        transfer and whether scheduled or dynamic mode was chosen.
-
-        Pydantic validators are "class methods",
-        see https://pydantic-docs.helpmanual.io/usage/validators/
-        """
-        # pylint: disable=no-self-argument
-        # pylint: disable=no-self-use
-        if one_field_must_be_set(
-            [
-                "scheduled_dc_charge_loop_res",
-                "Scheduled_DC_CLResControlMode",
-                "dynamic_dc_charge_loop_res",
-                "Dynamic_DC_CLResControlMode",
-                "bpt_scheduled_dc_charge_loop_res",
-                "BPT_Scheduled_DC_CLResControlMode",
-                "bpt_dynamic_dc_charge_loop_res",
-                "BPT_Dynamic_DC_CLResControlMode",
-            ],
-            values,
-            True,
-        ):
-            return values
 
     def __str__(self):
         # The XSD-conform name

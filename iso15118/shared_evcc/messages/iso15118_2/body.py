@@ -66,7 +66,6 @@ from iso15118.shared_evcc.messages.iso15118_2.datatypes import (
     ServiceParameterList,
     eMAID,
 )
-from iso15118.shared_evcc.validators import one_field_must_be_set
 
 logger = logging.getLogger(__name__)
 
@@ -101,28 +100,6 @@ class AuthorizationReq(BodyBase):
     gen_challenge: bytes = Field(
         None, alias="GenChallenge"
     )
-
-    @root_validator(pre=True)
-    def both_fields_set_or_unset(cls, values):
-        """
-        If the AuthorizationReq is digitally signed, then both the
-        gen_challenge field and the id attribute must be set.
-        If the AuthorizationReq is not digitally signed, then the message is
-        must be empty. This validator checks that both are either set or unset.
-
-        Pydantic validators are "class methods",
-        see https://pydantic-docs.helpmanual.io/usage/validators/
-        """
-        # pylint: disable=no-self-argument
-        # pylint: disable=no-self-use
-        _id, gen_challenge = values.get("id"), values.get("gen_challenge")
-        if (_id and not gen_challenge) or (not _id and gen_challenge):
-            raise ValueError(
-                "Fields 'id' and 'gen_challenge' must either both "
-                "be set (digital signature in header) or unset "
-                "(no digital signature in header)"
-            )
-        return values
 
 
 class AuthorizationRes(Response):
@@ -221,58 +198,6 @@ class ChargeParameterDiscoveryReq(BodyBase):
         None, alias="DC_EVChargeParameter"
     )
 
-    @root_validator(pre=True)
-    def either_ac_or_dc_charge_params(cls, values):
-        """
-        Either ac_ev_charge_parameter or dc_ev_charge_parameter must be set,
-        depending on whether the chosen energy transfer mode is AC or DC.
-
-        Pydantic validators are "class methods",
-        see https://pydantic-docs.helpmanual.io/usage/validators/
-        """
-        # pylint: disable=no-self-argument
-        # pylint: disable=no-self-use
-        if one_field_must_be_set(
-            [
-                "ac_ev_charge_parameter",
-                "AC_EVChargeParameter",
-                "dc_ev_charge_parameter",
-                "DC_EVChargeParameter",
-            ],
-            values,
-            True,
-        ):
-            return values
-
-    @root_validator()
-    def requested_energy_mode_must_match_charge_parameter(cls, values):
-        """
-        Check that the requested_energy_mode matches the charge parameter. If
-        the requested energy mode is AC-related, then ac_ev_charge_parameter
-        must be set, otherwise dc_ev_charge_parameter must be set.
-
-        Pydantic validators are "class methods",
-        see https://pydantic-docs.helpmanual.io/usage/validators/
-        """
-        # pylint: disable=no-self-argument
-        # pylint: disable=no-self-use
-        requested_energy_mode, ac_params, dc_params = (
-            values.get("requested_energy_mode"),
-            values.get("ac_ev_charge_parameter"),
-            values.get("dc_ev_charge_parameter"),
-        )
-        if ("AC_" in requested_energy_mode and dc_params) or (
-            "DC_" in requested_energy_mode and ac_params
-        ):
-            raise V2GMessageValidationError(
-                "[V2G2-477] Wrong charge parameters for requested energy "
-                f"transfer mode {requested_energy_mode}",
-                ResponseCode.FAILED_WRONG_CHARGE_PARAMETER,
-                cls,
-            )
-
-        return values
-
 
 class ChargeParameterDiscoveryRes(Response):
     """See section 8.4.3.8.3 in ISO 15118-2"""
@@ -285,48 +210,6 @@ class ChargeParameterDiscoveryRes(Response):
     dc_charge_parameter: DCEVSEChargeParameter = Field(
         None, alias="DC_EVSEChargeParameter"
     )
-
-    # TODO Reactivate the validator once you figured out how to deal with the
-    #       failed_responses dict
-    # @root_validator(pre=True)
-    # def either_ac_or_dc_charge_params(cls, values):
-    #     """
-    #     Either ac_charge_parameter or dc_charge_parameter must be set,
-    #     depending on whether the chosen energy transfer mode is AC or DC.
-    #
-    #     Pydantic validators are "class methods",
-    #     see https://pydantic-docs.helpmanual.io/usage/validators/
-    #     """
-    #     # pylint: disable=no-self-argument
-    #     # pylint: disable=no-self-use
-    #     if one_field_must_be_set(['ac_charge_parameter',
-    #                               'AC_EVSEChargeParameter',
-    #                               'dc_charge_parameter',
-    #                               'DC_EVSEChargeParameter'],
-    #                              values,
-    #                              True):
-    #         return values
-
-    # TODO Reactivate the validator once you figured out how to deal with the
-    #       failed_responses dict
-    # @root_validator()
-    # def schedule_must_be_set_if_processing_finished(cls, values):
-    #     """
-    #     Once the field evse_processing is set to EVSEProcessing.FINISHED, the
-    #     fields sa_schedule_list and ac_charge_parameter must be set.
-    #     """
-    #     # pylint: disable=no-self-argument
-    #     # pylint: disable=no-self-use
-    #     evse_processing, schedules, ac_charge_params, dc_charge_params = \
-    #         values.get('evse_processing'), \
-    #         values.get('sa_schedule_list'), \
-    #         values.get('ac_charge_parameter'), \
-    #         values.get('ac_charge_parameter')
-    #     if evse_processing == EVSEProcessing.FINISHED and (
-    #             not schedules or not (ac_charge_params or dc_charge_params)):
-    #         raise ValueError("SECC set EVSEProcessing to 'FINISHED' but either"
-    #                          "SAScheduleList or charge parameters are not set")
-    #     return values
 
 
 class ChargingStatusReq(BodyBase):
@@ -406,54 +289,12 @@ class MeteringReceiptReq(BodyBase):
     sa_schedule_tuple_id: int = Field(None, alias="SAScheduleTupleID")
     meter_info: MeterInfo = Field(..., alias="MeterInfo")
 
-    @validator("session_id")
-    def check_sessionid_is_hexbinary(cls, value):
-        """
-        Checks whether the session_id field is a hexadecimal representation of
-        8 bytes.
-
-        Pydantic validators are "class methods",
-        see https://pydantic-docs.helpmanual.io/usage/validators/
-        """
-        # pylint: disable=no-self-argument
-        # pylint: disable=no-self-use
-        try:
-            # convert value to int, assuming base 16
-            int(value, 16)
-            return value
-        except ValueError as exc:
-            raise ValueError(
-                f"Invalid value '{value}' for SessionID (must be "
-                f"hexadecimal representation of max 8 bytes)"
-            ) from exc
-
 
 class MeteringReceiptRes(Response):
     """See section 8.4.3.13.3 in ISO 15118-2"""
 
     ac_evse_status: ACEVSEStatus = Field(None, alias="AC_EVSEStatus")
     dc_evse_status: DCEVSEStatus = Field(None, alias="DC_EVSEStatus")
-
-    # TODO Reactivate the validator once you figured out how to deal with the
-    #       failed_responses dict
-    # @root_validator(pre=True)
-    # def either_ac_or_dc_status(cls, values):
-    #     """
-    #     Either ac_evse_status or ac_evse_status must be set,
-    #     depending on whether the chosen energy transfer mode is AC or DC.
-    #
-    #     Pydantic validators are "class methods",
-    #     see https://pydantic-docs.helpmanual.io/usage/validators/
-    #     """
-    #     # pylint: disable=no-self-argument
-    #     # pylint: disable=no-self-use
-    #     if one_field_must_be_set(['ac_evse_status',
-    #                               'AC_EVSEStatus',
-    #                               'dc_evse_status',
-    #                               'DC_EVSEStatus'],
-    #                              values,
-    #                              True):
-    #         return values
 
 
 class PaymentDetailsReq(BodyBase):
@@ -506,27 +347,6 @@ class PowerDeliveryRes(Response):
 
     ac_evse_status: ACEVSEStatus = Field(None, alias="AC_EVSEStatus")
     dc_evse_status: DCEVSEStatus = Field(None, alias="DC_EVSEStatus")
-
-    # TODO Reactivate the validator once you figured out how to deal with the
-    #       failed_responses dict
-    # @root_validator(pre=True)
-    # def either_ac_or_dc_status(cls, values):
-    #     """
-    #     Either ac_evse_status or dc_evse_status must be set,
-    #     depending on whether the chosen energy transfer mode is AC or DC.
-    #
-    #     Pydantic validators are "class methods",
-    #     see https://pydantic-docs.helpmanual.io/usage/validators/
-    #     """
-    #     # pylint: disable=no-self-argument
-    #     # pylint: disable=no-self-use
-    #     if one_field_must_be_set(['ac_evse_status',
-    #                               'AC_EVSEStatus',
-    #                               'dc_evse_status',
-    #                               'DC_EVSEStatus'],
-    #                              values,
-    #                              True):
-    #         return values
 
 
 class PreChargeReq(BodyBase):
@@ -582,26 +402,6 @@ class SessionSetupReq(BodyBase):
     # XSD type hexBinary with max 8 bytes encoded as 12 hexadecimal characters
     evcc_id: str = Field(..., alias="EVCCID")
 
-    @validator("evcc_id")
-    def check_sessionid_is_hexbinary(cls, value):
-        """
-        Checks whether the evcc_id field is a hexadecimal representation of
-        8 bytes.
-
-        Pydantic validators are "class methods",
-        see https://pydantic-docs.helpmanual.io/usage/validators/
-        """
-        # pylint: disable=no-self-argument
-        # pylint: disable=no-self-use
-        try:
-            # convert value to int, assuming base 16
-            int(value, 16)
-            return value
-        except ValueError as exc:
-            raise ValueError(
-                f"Invalid value '{value}' for EVCCID (must be "
-                f"hexadecimal representation of max 6 bytes)"
-            ) from exc
 
 
 class SessionSetupRes(Response):
