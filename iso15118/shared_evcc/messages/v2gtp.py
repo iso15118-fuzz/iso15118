@@ -51,17 +51,17 @@ class V2GTPMessage:
         payload_type: Contains info of how to decode the payload
         payload_length: Contains the length of the V2GTP message in bytes
         """
-        if protocol not in Protocol.options():
-            raise InvalidProtocolError(
-                f"'{protocol.name}' is not a "
-                "valid protocol. Allowed: "
-                f"{Protocol.allowed_protocols()}"
-            )
+        # if protocol not in Protocol.options():
+        #     raise InvalidProtocolError(
+        #         f"'{protocol.name}' is not a "
+        #         "valid protocol. Allowed: "
+        #         f"{Protocol.allowed_protocols()}"
+        #     )
 
-        if not self.is_payload_type_valid(protocol, payload_type):
-            raise InvalidPayloadTypeError(
-                f"Protocol {protocol} doesn't support" f" payload type {payload_type}"
-            )
+        # if not self.is_payload_type_valid(protocol, payload_type):
+        #     raise InvalidPayloadTypeError(
+        #         f"Protocol {protocol} doesn't support" f" payload type {payload_type}"
+        #     )
 
         self.protocol = protocol
         self.protocol_version = V2GTPVersion.PROTOCOL_VERSION
@@ -110,53 +110,53 @@ class V2GTPMessage:
         (Check section 7.8.3.2 15118-2, Ed.1)
         """
         is_valid: bool = True
-        if len(header) != 8:
-            logger.error(
-                f"No proper V2GTP message, header is "
-                f"{len(header)} bytes long. Expected: 8 bytes"
-            )
-            is_valid = False
+        # if len(header) != 8:
+        #     logger.error(
+        #         f"No proper V2GTP message, header is "
+        #         f"{len(header)} bytes long. Expected: 8 bytes"
+        #     )
+        #     is_valid = False
 
-        if protocol not in Protocol.options():
-            logger.error(
-                f"Unable to identify protocol version. " f"Received: {protocol}"
-            )
-            is_valid = False
+        # if protocol not in Protocol.options():
+        #     logger.error(
+        #         f"Unable to identify protocol version. " f"Received: {protocol}"
+        #     )
+        #     is_valid = False
 
-        protocol_version = header[0]
-        if protocol_version != V2GTPVersion.PROTOCOL_VERSION:
-            logger.error(
-                f"Incorrect protocol version '{protocol_version}' "
-                f"for V2GTP message. "
-                f"Expected: {V2GTPVersion.PROTOCOL_VERSION}"
-            )
-            is_valid = False
+        # protocol_version = header[0]
+        # if protocol_version != V2GTPVersion.PROTOCOL_VERSION:
+        #     logger.error(
+        #         f"Incorrect protocol version '{protocol_version}' "
+        #         f"for V2GTP message. "
+        #         f"Expected: {V2GTPVersion.PROTOCOL_VERSION}"
+        #     )
+        #     is_valid = False
 
-        inv_protocol_version = header[1]
-        if inv_protocol_version != V2GTPVersion.INV_PROTOCOL_VERSION:
-            logger.error(
-                f"Incorrect inverse protocol version "
-                f"'{inv_protocol_version}' for V2GTP message. "
-                f"Expected: {V2GTPVersion.INV_PROTOCOL_VERSION}"
-            )
-            is_valid = False
+        # inv_protocol_version = header[1]
+        # if inv_protocol_version != V2GTPVersion.INV_PROTOCOL_VERSION:
+        #     logger.error(
+        #         f"Incorrect inverse protocol version "
+        #         f"'{inv_protocol_version}' for V2GTP message. "
+        #         f"Expected: {V2GTPVersion.INV_PROTOCOL_VERSION}"
+        #     )
+        #     is_valid = False
 
-        if not cls.is_payload_type_valid(protocol, cls.get_payload_type(header)):
-            is_valid = False
+        # if not cls.is_payload_type_valid(protocol, cls.get_payload_type(header)):
+        #     is_valid = False
 
-        payload_length = cls.get_payload_length(header)
-        if payload_length > UINT_32_MAX:
-            logger.error(
-                f"Payload length of {payload_length} bytes for V2GTP "
-                f"message exceeds limit of {UINT_32_MAX} bytes"
-            )
-            is_valid = False
+        # payload_length = cls.get_payload_length(header)
+        # if payload_length > UINT_32_MAX:
+        #     logger.error(
+        #         f"Payload length of {payload_length} bytes for V2GTP "
+        #         f"message exceeds limit of {UINT_32_MAX} bytes"
+        #     )
+        #     is_valid = False
 
-        if payload_length < 0:
-            logger.error(
-                "Couldn't determine payload length of V2GTP message " "(got -1)"
-            )
-            is_valid = False
+        # if payload_length < 0:
+        #     logger.error(
+        #         "Couldn't determine payload length of V2GTP message " "(got -1)"
+        #     )
+        #     is_valid = False
 
         return is_valid
 

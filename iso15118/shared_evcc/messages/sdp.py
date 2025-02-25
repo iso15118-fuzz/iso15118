@@ -78,23 +78,23 @@ class SDPRequest:
     """
 
     def __init__(self, security: Security, transport_protocol: Transport):
-        if security not in Security.options():
-            logger.error(
-                f"'{security}' is not a valid value for "
-                f"the field 'security'."
-                f"Allowed: {Security.options()} "
-            )
-            # TODO: Raise an Exception
-            return
+        # if security not in Security.options():
+        #     logger.error(
+        #         f"'{security}' is not a valid value for "
+        #         f"the field 'security'."
+        #         f"Allowed: {Security.options()} "
+        #     )
+        #     # TODO: Raise an Exception
+        #     return
 
-        if transport_protocol not in Transport.options():
-            logger.error(
-                f"'{transport_protocol}' is not a valid value for the "
-                f"field 'transport_protocol'."
-                f"Allowed: {Transport.options()} "
-            )
-            # TODO: Raise an Exception
-            return
+        # if transport_protocol not in Transport.options():
+        #     logger.error(
+        #         f"'{transport_protocol}' is not a valid value for the "
+        #         f"field 'transport_protocol'."
+        #         f"Allowed: {Transport.options()} "
+        #     )
+        #     # TODO: Raise an Exception
+        #     return
 
         self.security = security
         self.transport_protocol = transport_protocol

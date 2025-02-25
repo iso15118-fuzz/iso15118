@@ -168,7 +168,7 @@ def get_tcp_port() -> int:
     A port number in the range of Dynamic Ports (49152-65535) as defined in
     IETF RFC 6335 are allowed for TCP.
     """
-    return randint(49152, 65535)
+    return 49152
 
 
 def get_nic_mac_address(nic: str) -> str:
