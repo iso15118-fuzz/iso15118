@@ -16,7 +16,6 @@ with atheris.instrument_imports():
     from iso15118.secc.controller.interface import ServiceStatus
     from iso15118.secc.controller.simulator import SimEVSEController
     from iso15118.secc.secc_settings import Config as SECCConfig
-
     from iso15118.shared.exificient_exi_codec import ExificientEXICodec
 
 logger = logging.getLogger(__name__)
@@ -28,25 +27,38 @@ evcc_config.load_envs()
 evcc_file_config = load_from_file(evcc_config.ev_config_file_path)
 evcc_file_config.charge_loop_delay_time = 0
 
+
+class EVCCError(Exception):
+    pass
+
+
 async def main():
-    sim_evse_controller = SimEVSEController()
-    await sim_evse_controller.set_status(ServiceStatus.STARTING)
-    await asyncio.gather(
-        SECCHandler(
+    async def run_secc():
+        await SECCHandler(
             exi_codec=ExificientEXICodec(),
             evse_controller=sim_evse_controller,
             config=secc_config,
-        ).start(secc_config.iface),
-        EVCCHandler(
-            evcc_config=evcc_file_config,
-            iface=evcc_config.iface,
-            exi_codec=ExificientEXICodec(),
-            ev_controller=SimEVController(evcc_file_config),
-        ).start(),
-    )
+        ).start(secc_config.iface)
 
+    async def run_evcc():
+        try:
+            await EVCCHandler(
+                evcc_config=evcc_file_config,
+                iface=evcc_config.iface,
+                exi_codec=ExificientEXICodec(),
+                ev_controller=SimEVController(evcc_file_config),
+            ).start()
+        except Exception as e:
+            logger.error(f"EVCC terminated: {e}")
+            raise EVCCError(e)
 
+    sim_evse_controller = SimEVSEController()
+    await sim_evse_controller.set_status(ServiceStatus.STARTING)
+    await asyncio.gather(run_secc(), run_evcc())
+
+run_count = 0
 def run(data: bytes = b""):
+    global run_count
     injector = atheris.FuzzInjector()
     l: list[int] = injector.mutation_list
     n = len(l)
@@ -54,16 +66,17 @@ def run(data: bytes = b""):
     fdp = atheris.FuzzedDataProvider(data)
     import random
 
-    random.seed(fdp.ConsumeInt(4))
+    random.seed(fdp.ConsumeInt(16))
     # random.seed(0)
     for i in range(n):
-        value = 0
-        # value = fdp.ConsumeInt(4)
-        value = random.randint(0, 256)
+        if run_count <= 1:
+            value = 0
+        else:
+            value = random.randint(0, 256)
         l.append(value)
     logger.info(f"data length: {len(data)}, list length {len(l)} list {l}")
     start_time = time.time()
-    logger.info("Running main")
+    logger.info(f"Running main #{run_count}")
     timeout = 9
     try:
         loop = asyncio.new_event_loop()
@@ -71,6 +84,8 @@ def run(data: bytes = b""):
         loop.run_until_complete(asyncio.wait_for(main(), timeout=timeout))
     except asyncio.TimeoutError:
         logger.error(f"Main function timed out after {timeout} seconds")
+    except EVCCError as e:
+        logger.error(f"EVCCError: {e}")
     except Exception as e:
         raise e
     finally:
@@ -81,8 +96,8 @@ def run(data: bytes = b""):
         loop.run_until_complete(loop.shutdown_asyncgens())
         loop.close()
         asyncio.set_event_loop(None)
-    logger.info(f"Running main done, Time: {time.time() - start_time:.2f} s")
-    print(f"Running main done, Time: {time.time() - start_time:.2f} s")
+    logger.info(f"Running main #{run_count} done, Time: {time.time() - start_time:.2f} s")
+    run_count += 1
 
 
 if __name__ == "__main__":
