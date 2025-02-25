@@ -65,7 +65,7 @@ from iso15118.shared_evcc.utils import cancel_task, wait_for_tasks
 
 logger = logging.getLogger(__name__)
 
-SDP_MAX_REQUEST_COUNTER = 50
+SDP_MAX_REQUEST_COUNTER = 5 # smaller value as the connection is stable
 
 
 class EVCCCommunicationSession(V2GCommunicationSession):
@@ -311,8 +311,15 @@ class CommunicationSessionHandler:
         ]
 
         logger.info("Communication session handler started")
-
-        await wait_for_tasks(self.list_of_tasks)
+        try:
+            await wait_for_tasks(self.list_of_tasks)
+        finally:
+            await asyncio.sleep(1)
+            if self.udp_client:
+                self.udp_client._transport.close()
+            if self.tcp_client:
+                self.tcp_client.writer.close()
+                await self.tcp_client.writer.wait_closed()
 
     async def send_sdp(self):
         """
@@ -425,7 +432,7 @@ class CommunicationSessionHandler:
             logger.exception(
                 f"{exc.__class__.__name__} when trying to connect "
                 f"to host {host} and port {port}"
-            )
+            ); raise exc
             return
 
         comm_session = EVCCCommunicationSession(
@@ -449,7 +456,7 @@ class CommunicationSessionHandler:
             logger.exception(
                 f"{exc.__class__.__name__} occurred while trying to "
                 f"create create an SDPRequest"
-            )
+            ); raise exc
             return
 
     async def process_incoming_udp_packet(self, message: UDPPacketNotification):
@@ -464,7 +471,7 @@ class CommunicationSessionHandler:
         try:
             v2gtp_msg = V2GTPMessage.from_bytes(Protocol.UNKNOWN, message.data)
         except InvalidV2GTPMessageError as exc:
-            logger.error(exc)
+            logger.error(exc); raise exc
             return
 
         if v2gtp_msg.payload_type in [
@@ -479,7 +486,7 @@ class CommunicationSessionHandler:
                     await self.restart_sdp(True)
                     return
                 except SDPFailedError as exc:
-                    logger.exception(exc)
+                    logger.exception(exc); raise exc
                     return  # TODO check if this is correct here
 
             logger.info(f"SDPResponse received: {sdp_response}")
@@ -501,16 +508,16 @@ class CommunicationSessionHandler:
             #
             # The rationale behind this might be that the EV OEM trades convenience
             # (the EV driver can always charge) over security.
-            if (not secc_signals_tls and self.config.enforce_tls) or (
-                secc_signals_tls and not self.config.use_tls
-            ):
-                logger.error(
-                    "Security mismatch, can't initiate communication session."
-                    f"\nEVCC setting USE_TLS: {self.config.use_tls}"
-                    f"\nEVCC setting ENFORCE_TLS: {self.config.enforce_tls}"
-                    f"\nSDP response signals TLS: {secc_signals_tls}"
-                )
-                return
+            # if (not secc_signals_tls and self.config.enforce_tls) or (
+            #     secc_signals_tls and not self.config.use_tls
+            # ):
+            #     logger.error(
+            #         "Security mismatch, can't initiate communication session."
+            #         f"\nEVCC setting USE_TLS: {self.config.use_tls}"
+            #         f"\nEVCC setting ENFORCE_TLS: {self.config.enforce_tls}"
+            #         f"\nSDP response signals TLS: {secc_signals_tls}"
+            #     )
+            #     return
 
             ip_address_int = int.from_bytes(sdp_response.ip_address, "big")
             host = IPv6Address(ip_address_int)
@@ -529,7 +536,7 @@ class CommunicationSessionHandler:
             try:
                 await self.restart_sdp(True)
             except SDPFailedError as exc:
-                logger.exception(exc)
+                logger.exception(exc); raise exc
                 return  # TODO check if this is correct here
             return
 
@@ -555,7 +562,7 @@ class CommunicationSessionHandler:
                     try:
                         await self.restart_sdp(False)
                     except SDPFailedError as exc:
-                        logger.exception(exc)
+                        logger.exception(exc); raise exc
                         # TODO not sure what else to do here
                 elif isinstance(notification, StopNotification):
                     await cancel_task(self.comm_session[1])
@@ -566,7 +573,7 @@ class CommunicationSessionHandler:
                         try:
                             await self.restart_sdp(True)
                         except SDPFailedError as exc:
-                            logger.exception(exc)
+                            logger.exception(exc); raise exc
                             # TODO not sure what else to do here
                 else:
                     logger.warning(

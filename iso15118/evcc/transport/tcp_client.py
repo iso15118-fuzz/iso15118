@@ -45,12 +45,12 @@ class TCPClient(asyncio.Protocol):
         full_host_address = host.compressed + f"%{iface}"
 
         try:
-            self.reader, self.writer = await asyncio.open_connection(
+            self.reader, self.writer = await asyncio.wait_for(await asyncio.open_connection(
                 host=full_host_address,
                 port=port,
                 family=socket.AF_INET6,
                 ssl=self.ssl_context,
-            )
+            ), timeout=1)
         except ConnectionRefusedError as exc:
             raise exc
         except Exception as exc:
