@@ -38,10 +38,13 @@ class EVCCError(Exception):
 
 
 run_count = 0
+
+
 async def main():
     i = run_count % len(evcc_file_configs)
     logger.info(f"Running with evcc_file_configs[{i}]")
     evcc_file_config = evcc_file_configs[i]
+
     async def run_secc():
         await SECCHandler(
             exi_codec=ExificientEXICodec(),
@@ -67,7 +70,29 @@ async def main():
 
 
 counter = Counter()
-KNOWN_MUTATION_COUNTER = {298: 34105, 338: 20936, 308: 17050, 379: 15356, 469: 1880, 26: 1135, 435: 1038, 23: 852, 385: 852, 386: 852, 393: 847, 394: 847, 31: 847, 11: 847, 12: 847, 332: 847, 175: 377, 176: 377, 54: 377, 459: 94, 111: 94}
+KNOWN_MUTATION_COUNTER = {
+    298: 34105,
+    338: 20936,
+    308: 17050,
+    379: 15356,
+    469: 1880,
+    26: 1135,
+    435: 1038,
+    23: 852,
+    385: 852,
+    386: 852,
+    393: 847,
+    394: 847,
+    31: 847,
+    11: 847,
+    12: 847,
+    332: 847,
+    175: 377,
+    176: 377,
+    54: 377,
+    459: 94,
+    111: 94,
+}
 
 
 def run(data: bytes = b""):
