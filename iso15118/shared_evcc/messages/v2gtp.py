@@ -109,7 +109,7 @@ class V2GTPMessage:
         This method processes the V2GTP header as required by ISO 15118
         (Check section 7.8.3.2 15118-2, Ed.1)
         """
-        is_valid: bool = True
+        # is_valid: bool = True
         # if len(header) != 8:
         #     logger.error(
         #         f"No proper V2GTP message, header is "
@@ -158,7 +158,7 @@ class V2GTPMessage:
         #     )
         #     is_valid = False
 
-        return is_valid
+        return True
 
     def to_bytes(self) -> bytes:
         header = (

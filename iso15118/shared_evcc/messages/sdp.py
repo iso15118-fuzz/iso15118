@@ -163,36 +163,36 @@ class SDPResponse:
         Also raise Exceptions
         """
 
-        if len(ip_address) != 16:
-            logger.error(
-                f"Please provide a valid IPv6 address with 16 bytes. "
-                f"Provided: {len(ip_address)} bytes "
-                f"({ip_address.hex()})"
-            )
-            return
+        # if len(ip_address) != 16:
+        #     logger.error(
+        #         f"Please provide a valid IPv6 address with 16 bytes. "
+        #         f"Provided: {len(ip_address)} bytes "
+        #         f"({ip_address.hex()})"
+        #     )
+        #     return
 
-        if port < MIN_TCP_PORT or port > MAX_TCP_PORT:
-            logger.error(
-                f"The port {port} does not match the mandatory "
-                f"UDP server port 15118."
-            )
-            return
+        # if port < MIN_TCP_PORT or port > MAX_TCP_PORT:
+        #     logger.error(
+        #         f"The port {port} does not match the mandatory "
+        #         f"UDP server port 15118."
+        #     )
+        #     return
 
-        if security not in Security.options():
-            logger.error(
-                f"'{security}' is not a valid value for the "
-                f"field 'security'."
-                f"Allowed: {Security.options()} "
-            )
-            return
+        # if security not in Security.options():
+        #     logger.error(
+        #         f"'{security}' is not a valid value for the "
+        #         f"field 'security'."
+        #         f"Allowed: {Security.options()} "
+        #     )
+        #     return
 
-        if transport_protocol not in Transport.options():
-            logger.error(
-                f"'{transport_protocol}' is not a valid value for "
-                f"the field 'transport_protocol'."
-                f"Allowed: {Transport.options()} "
-            )
-            return
+        # if transport_protocol not in Transport.options():
+        #     logger.error(
+        #         f"'{transport_protocol}' is not a valid value for "
+        #         f"the field 'transport_protocol'."
+        #         f"Allowed: {Transport.options()} "
+        #     )
+        #     return
 
         self.ip_address = ip_address
         self.port = port
