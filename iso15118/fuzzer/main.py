@@ -40,10 +40,8 @@ class EVCCError(Exception):
 run_count = 0
 
 
-async def main():
-    i = run_count % len(evcc_file_configs)
-    logger.info(f"Running with evcc_file_configs[{i}]")
-    evcc_file_config = evcc_file_configs[i]
+async def main(evcc_file_config):
+    logger.info(f"Running with evcc_file_config: {evcc_file_config}")
 
     async def run_secc():
         await SECCHandler(
@@ -95,6 +93,12 @@ KNOWN_MUTATION_COUNTER = {
 }
 
 
+def generate_config(fdp, run_count):
+    i = run_count % len(evcc_file_configs)
+    evcc_file_config = evcc_file_configs[i]
+    return evcc_file_config
+
+
 def run(data: bytes = b""):
     global run_count
     injector = atheris.FuzzInjector()
@@ -104,6 +108,7 @@ def run(data: bytes = b""):
     idx_list.sort(key=lambda x: KNOWN_MUTATION_COUNTER.get(x, 0), reverse=True)
     l.clear()
     fdp = atheris.FuzzedDataProvider(data)
+    evcc_file_config = generate_config(fdp, run_count)
     import random
 
     # random.seed(fdp.ConsumeInt(4))
@@ -122,7 +127,9 @@ def run(data: bytes = b""):
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     try:
-        loop.run_until_complete(asyncio.wait_for(main(), timeout=timeout))
+        loop.run_until_complete(
+            asyncio.wait_for(main(evcc_file_config), timeout=timeout)
+        )
         counter["normal"] += 1
     except asyncio.TimeoutError:
         logger.error(f"Main function timed out after {timeout} seconds")
