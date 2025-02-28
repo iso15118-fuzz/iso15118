@@ -114,7 +114,7 @@ class UDPClient(DatagramProtocol):
         self.started = False
 
     def connection_lost(self, exc):
-        logger.exception(f"Client closed: {exc}")
+        # logger.exception(f"Client closed: {exc}")
         self.started = False
 
     def send(self, message: V2GTPMessage):
