@@ -4,14 +4,17 @@ import sys
 import time
 from collections import Counter
 from pathlib import Path
+from typing import Dict
 
 import atheris  # type: ignore
+
+from iso15118.shared_evcc.messages.enums import EnergyTransferModeEnum
 
 with atheris.instrument_imports():
     from iso15118.evcc import Config as EVCCConfig
     from iso15118.evcc import EVCCHandler
     from iso15118.evcc.controller.simulator import SimEVController
-    from iso15118.evcc.evcc_config import load_from_file
+    from iso15118.evcc.evcc_config import load_from_file, EVCCConfig as EVCCFileConfig
 atheris.FuzzInjector().disable()
 with atheris.instrument_imports():
     from iso15118.secc import SECCHandler
@@ -69,34 +72,91 @@ async def main(evcc_file_config):
 
 counter = Counter()
 KNOWN_MUTATION_COUNTER = {
-    298: 34105,
-    338: 20936,
-    308: 17050,
-    379: 15356,
-    469: 1880,
-    26: 1135,
-    435: 1038,
-    23: 852,
-    385: 852,
-    386: 852,
-    393: 847,
-    394: 847,
-    31: 847,
-    11: 847,
-    12: 847,
-    332: 847,
-    175: 377,
-    176: 377,
-    54: 377,
-    459: 94,
-    111: 94,
+    285: 543086,
+    295: 265168,
+    366: 210116,
+    325: 97168,
+    26: 70918,
+    23: 50236,
+    372: 50236,
+    373: 50236,
+    380: 21651,
+    381: 21651,
+    31: 21651,
+    319: 17560,
+    11: 15807,
+    12: 15807,
+    162: 5438,
+    163: 5438,
+    456: 4461,
+    98: 3852,
+    422: 3182,
+    446: 192,
 }
 
 
-def generate_config(fdp, run_count):
-    i = run_count % len(evcc_file_configs)
-    evcc_file_config = evcc_file_configs[i]
-    return evcc_file_config
+
+def generate_config(fdp, run_count) -> EVCCConfig:
+    conf_data: Dict[str, object] = {}
+
+    # Generate supportedEnergyServices with at least one valid entry
+    valid_services = [
+        "AC",
+        "DC",
+        "WPT",
+        "DC_ACDP",
+        "AC_BPT",
+        "DC_BPT",
+        "DC_ACDP_BPT",
+        "INTERNET",
+        "PARKING_STATUS",
+    ]
+    # num_services = fdp.ConsumeIntInRange(1, 9)
+    supported_energy_services = []
+    supported_energy_services = valid_services
+    # for _ in range(num_services):
+    #     if not supported_energy_services or fdp.ConsumeBool():
+    #         supported_energy_services.append(fdp.PickValueInList(valid_services))
+    conf_data["supportedEnergyServices"] = supported_energy_services
+
+    # Generate supportedProtocols with at least one valid entry
+    valid_protocols = [
+        "ISO_15118_20_AC",
+        "ISO_15118_20_DC",
+        "ISO_15118_2",
+        "DIN_SPEC_70121",
+    ]
+    num_protocols = fdp.ConsumeIntInRange(1, 4)
+    supported_protocols = []
+    for _ in range(num_protocols):
+        if not supported_protocols or fdp.ConsumeBool():
+            supported_protocols.append(fdp.PickValueInList(valid_protocols))
+    conf_data["supportedProtocols"] = supported_protocols
+
+    conf_data["isCertInstallNeeded"] = False
+    conf_data["useTls"] = False
+    conf_data["enforceTls"] = False
+    conf_data["sdpRetryCycles"] = 1
+    conf_data["maxContractCerts"] = 3
+    conf_data["maxSupportingPoints"] = 1024
+    conf_data["chargeLoopCycle"] = 10
+    conf_data["chargeLoopDelay"] = 0
+
+    # Handle energyTransferMode as valid enum name
+    try:
+        energy_modes = [e.value for e in EnergyTransferModeEnum]
+        conf_data["energyTransferMode"] = fdp.PickValueInList(energy_modes)
+    except IndexError:
+        pass  # Skip if no enum members
+
+    if run_count < len(evcc_file_configs):
+        return evcc_file_configs[run_count]
+    try:
+        config = EVCCFileConfig(conf_data)
+    except Exception as e:
+        # Report unexpected exceptions
+        raise e
+    return config
 
 
 def run(data: bytes = b""):
@@ -107,20 +167,17 @@ def run(data: bytes = b""):
     idx_list = [i for i in range(n)]
     idx_list.sort(key=lambda x: KNOWN_MUTATION_COUNTER.get(x, 0), reverse=True)
     l.clear()
+    logger.info(f"data length: {len(data)}, data{data.hex()}")
     fdp = atheris.FuzzedDataProvider(data)
-    evcc_file_config = generate_config(fdp, run_count)
-    import random
-
-    # random.seed(fdp.ConsumeInt(4))
-    # random.seed(0)
+    # evcc_file_config = generate_config(fdp, run_count)
+    evcc_file_config = evcc_file_configs[run_count % len(evcc_file_configs)]
     for _ in range(n):
         l.append(0)
     for i in range(n):
         if run_count < len(evcc_file_configs):
             continue
         l[idx_list[i]] = fdp.ConsumeUInt(1)
-        # l[i] = random.randint(0, 255)
-    logger.info(f"data length: {len(data)}, list length: {len(l)}, mutation list: {l}")
+    logger.info(f"list length: {len(l)}, mutation list: {l}")
     start_time = time.time()
     logger.info(f"Running main #{run_count}")
     timeout = 15
@@ -150,10 +207,10 @@ def run(data: bytes = b""):
     logger.info(
         f"Running main done #{run_count}, "
         f"Time: {time.time() - start_time:.2f} s, "
-        f"Counter: {counter}"
+        f"Status Counter: {counter}"
     )
     run_count += 1
-    atheris.FuzzInjector().dump(False, False, False, True)
+    atheris.FuzzInjector().dump(False, False, False)
 
 
 if __name__ == "__main__":
