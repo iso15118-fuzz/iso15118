@@ -72,64 +72,62 @@ async def main(evcc_file_config):
 
 counter = Counter()
 KNOWN_MUTATION_COUNTER = {
-    325: 6752,
-    370: 6462,
-    371: 6216,
-    372: 3960,
-    335: 3376,
-    328: 3376,
-    338: 3376,
-    276: 3369,
-    280: 3369,
-    281: 3369,
-    392: 3231,
-    286: 3226,
-    288: 3226,
-    419: 3108,
-    289: 3103,
-    373: 3064,
-    290: 2655,
-    403: 2430,
-    522: 2110,
-    518: 1235,
-    519: 430,
-    359: 417,
-    521: 335,
-    523: 268,
-    524: 260,
-    525: 260,
-    527: 260,
-    26: 172,
-    27: 172,
-    273: 165,
-    29: 145,
-    23: 145,
-    429: 145,
-    430: 145,
-    485: 143,
-    442: 123,
-    438: 123,
-    439: 123,
-    33: 123,
-    34: 123,
-    11: 123,
-    12: 123,
-    364: 123,
-    386: 123,
-    136: 69,
-    122: 69,
-    118: 69,
-    185: 69,
-    186: 69,
-    469: 58,
-    272: 48,
-    471: 43,
-    472: 29,
-    35: 22,
-    474: 16,
-    509: 16,
-    113: 11,
-    343: 2,
+    324: 2894,
+    369: 2781,
+    370: 2669,
+    371: 1596,
+    275: 1451,
+    279: 1451,
+    280: 1451,
+    334: 1447,
+    327: 1447,
+    337: 1447,
+    391: 1391,
+    285: 1387,
+    287: 1387,
+    418: 1335,
+    288: 1331,
+    372: 1312,
+    289: 1191,
+    402: 1088,
+    521: 920,
+    517: 532,
+    358: 186,
+    518: 179,
+    520: 140,
+    523: 130,
+    524: 130,
+    526: 130,
+    522: 112,
+    272: 74,
+    484: 66,
+    26: 61,
+    27: 61,
+    29: 56,
+    23: 56,
+    428: 56,
+    429: 56,
+    441: 56,
+    437: 56,
+    438: 56,
+    33: 56,
+    11: 56,
+    12: 56,
+    363: 56,
+    385: 56,
+    135: 30,
+    121: 30,
+    117: 30,
+    184: 30,
+    185: 30,
+    468: 24,
+    271: 22,
+    470: 18,
+    471: 11,
+    473: 6,
+    112: 6,
+    508: 5,
+    342: 2,
 }
 
 
@@ -203,8 +201,9 @@ def run(data: bytes = b""):
     n = len(l)
     idx_list = [i for i in range(n)]
     idx_list.sort(key=lambda x: KNOWN_MUTATION_COUNTER.get(x, 0), reverse=True)
+    logger.info(f"idx_list: {idx_list}")
     l.clear()
-    logger.info(f"data length: {len(data)}, data{data.hex()}")
+    logger.info(f"data length: {len(data)}, data: {data.hex()}")
     fdp = atheris.FuzzedDataProvider(data)
     # evcc_file_config = generate_config(fdp, run_count)
     evcc_file_config = evcc_file_configs[run_count % len(evcc_file_configs)]
@@ -251,7 +250,10 @@ def run(data: bytes = b""):
 
 
 if __name__ == "__main__":
-    atheris.FuzzInjector().dump()  # 648 LOAD_FAST, 1124 LOAD_CONST
+    injector = atheris.FuzzInjector()
+    for k, v in KNOWN_MUTATION_COUNTER.items():
+        logger.info(f"known mutation count: {v}, {injector.mutation_map[k]}")
+    injector.dump()
     if len(sys.argv) > 1 and sys.argv[1] == "--run_once":
         for _ in evcc_file_configs:
             run()
