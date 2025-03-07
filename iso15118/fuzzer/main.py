@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 import sys
 import time
@@ -8,6 +9,7 @@ from typing import Dict
 
 import atheris  # type: ignore
 
+from iso15118.fuzzer.consts import KNOWN_MUTATION_COUNTER
 from iso15118.shared_evcc.messages.enums import EnergyTransferModeEnum
 
 with atheris.instrument_imports():
@@ -73,69 +75,6 @@ async def main(evcc_file_config):
 
 
 counter = Counter()
-KNOWN_MUTATION_COUNTER = {
-    324: 50887,
-    369: 44676,
-    370: 41930,
-    334: 25496,
-    327: 25337,
-    337: 25191,
-    275: 23400,
-    279: 23346,
-    280: 23298,
-    391: 22423,
-    285: 21498,
-    287: 21498,
-    418: 20703,
-    288: 20125,
-    371: 19228,
-    402: 18347,
-    289: 16765,
-    521: 13011,
-    372: 11730,
-    517: 8127,
-    26: 5239,
-    27: 5123,
-    358: 4596,
-    29: 3273,
-    23: 3273,
-    428: 3273,
-    429: 3273,
-    518: 2786,
-    520: 2245,
-    441: 1889,
-    437: 1889,
-    438: 1889,
-    33: 1889,
-    11: 1889,
-    12: 1889,
-    522: 1796,
-    363: 1768,
-    385: 1768,
-    272: 1336,
-    277: 1224,
-    34: 963,
-    523: 871,
-    524: 871,
-    526: 871,
-    271: 466,
-    484: 456,
-    135: 404,
-    121: 404,
-    117: 404,
-    184: 404,
-    185: 404,
-    468: 288,
-    470: 214,
-    112: 210,
-    471: 145,
-    508: 120,
-    473: 81,
-    294: 22,
-    295: 22,
-    342: 2,
-}
-
 
 def generate_config(fdp, run_count) -> EVCCConfig:
     conf_data: Dict[str, object] = {}
@@ -264,6 +203,12 @@ if __name__ == "__main__":
         for _ in evcc_file_configs:
             run()
     elif len(sys.argv) > 1 and sys.argv[1] == "--run_no":
+        exit(0)
+    elif len(sys.argv) > 1 and sys.argv[1] == "--get_json":
+        res = {}
+        for k, v in injector.mutation_map.items():
+            res[k] = str(v[2])
+        print(json.dumps(res))
         exit(0)
     else:
         atheris.Setup(sys.argv, run)
