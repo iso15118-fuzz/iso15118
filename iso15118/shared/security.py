@@ -470,7 +470,7 @@ def log_certs_details(certs: List[bytes]):
         logger.debug(f"Issuer: {der_cert.issuer}")
         logger.debug(f"Serial number: {der_cert.serial_number}")
         logger.debug(
-            f"Validity: {der_cert.not_valid_before} - {der_cert.not_valid_after}"
+            f"Validity: {der_cert.not_valid_before_utc} - {der_cert.not_valid_after_utc}"
         )
         logger.debug(
             f"Fingerprint: {der_cert.fingerprint(der_cert.signature_hash_algorithm).hex(':')}"  # noqa
