@@ -3,7 +3,7 @@ import os
 import secrets
 import ssl
 from base64 import urlsafe_b64encode
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum, auto
 from ssl import DER_cert_to_PEM_cert, SSLContext, SSLError, VerifyMode
 from typing import Dict, List, Optional, Tuple, Union, cast
@@ -724,7 +724,7 @@ def check_validity(certs: List[Certificate]):
     Raises:
         CertNotYetValidError, CertExpiredError
     """
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     for cert in certs:
         if cert.not_valid_before_utc > now:
             raise CertNotYetValidError(cert.subject.__str__())
