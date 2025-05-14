@@ -16,7 +16,7 @@ The primary dependencies to install the project are the following:
 > - Poetry [^3]
 > - Python >= 3.9
 
-<sub>*If using a Windows machine, follow the same steps as below on a Linux VM.</sub>
+<sub>\*If using a Windows machine, follow the same steps as below on a Linux VM.</sub>
 
 There are two recommended ways of running the project:
 
@@ -151,29 +151,29 @@ Similar to the SECC, we can start the EVCC side as follows:
 $ make install-local
 $ make run-evcc
 ```
+
 It is possible to run up EVCC in different configurations. An example setting configuration
-for EVCC would be (15118-2, AC, EIM, TLS disabled mode), (15118-2/DINSPEC, DC, EIM/PnC, TLS enabled) etc. 
-Examples for such configurations are provided under "iso15118/shared/examples/evcc/". The configuration 
+for EVCC would be (15118-2, AC, EIM, TLS disabled mode), (15118-2/DINSPEC, DC, EIM/PnC, TLS enabled) etc.
+Examples for such configurations are provided under "iso15118/shared/examples/evcc/". The configuration
 could be passed in as a commandline argument as given below.
 
 ```bash
 $ make run-evcc config=path_of_config_file
 ```
+
 Supported settings in EVCC configuration are given below:
 
-
-| Setting                | Default Value                                                | Description                                                                                                                            |
-|----------------------- | ------------------------------------------------------------ |----------------------------------------------------------------------------------------------------------------------------------------|
-| supportedProtocols     | `DIN_SPEC_70121,ISO_15118_2,ISO_15118_20_AC,ISO_15118_20_DC` | Enabled communication protocols on EVCC.                                                                                               |
-| supportedEnergyServices| `AC`                                                         | Selected energy services mode for EVCC.                                                                                                |
-| useTls                 | `True`                                                       | Whether or not the EVCC signals the preference to communicate with a TLS connection                                                    |
-| enforceTls             | `False`                                                      | Whether or not the EVCC will only accept TLS connections                                                                               |
-| isCertInstallNeeded    | `False`                                                      | Indicates if the installation of a contract certificate is needed                                                                      |
-| energyTransferMode     | `AC_three_phase_core`                                        | Energy transfer mode requested for the current charging session.                                                                       |
-| sdpRetryCycles         | `1`                                                          | Indicates how often shall SDP (SECC Discovery Protocol) retries happen before reverting to using nominal duty cycle PWM-based charging |
-| maxContractCerts       | `3`                                                          | Maximum amount of contract certificates the EV stores.                                                                                 |
-| maxSupportingPoints    | `1024`                                                       | Indicates the maximum number of entries the EVCC supports within the sub-elements of a ScheduleTuple                                   |
-
+| Setting                 | Default Value                                                | Description                                                                                                                            |
+| ----------------------- | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| supportedProtocols      | `DIN_SPEC_70121,ISO_15118_2,ISO_15118_20_AC,ISO_15118_20_DC` | Enabled communication protocols on EVCC.                                                                                               |
+| supportedEnergyServices | `AC`                                                         | Selected energy services mode for EVCC.                                                                                                |
+| useTls                  | `True`                                                       | Whether or not the EVCC signals the preference to communicate with a TLS connection                                                    |
+| enforceTls              | `False`                                                      | Whether or not the EVCC will only accept TLS connections                                                                               |
+| isCertInstallNeeded     | `False`                                                      | Indicates if the installation of a contract certificate is needed                                                                      |
+| energyTransferMode      | `AC_three_phase_core`                                        | Energy transfer mode requested for the current charging session.                                                                       |
+| sdpRetryCycles          | `1`                                                          | Indicates how often shall SDP (SECC Discovery Protocol) retries happen before reverting to using nominal duty cycle PWM-based charging |
+| maxContractCerts        | `3`                                                          | Maximum amount of contract certificates the EV stores.                                                                                 |
+| maxSupportingPoints     | `1024`                                                       | Indicates the maximum number of entries the EVCC supports within the sub-elements of a ScheduleTuple                                   |
 
 The SECC and EVCC have been tested together under:
 
@@ -216,7 +216,7 @@ The default configuration values can be modified by setting them as environment 
 The following table provides a few of the available variables:
 
 | ENV               | Default Value                                                | Description                                                                                                                                                     |
-| ----------------- | ------------------------------------------------------------ |-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ----------------- | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | NETWORK_INTERFACE | `eth0`                                                       | HomePlug Green PHY Network Interface from which the high-level communication (HLC) will be established                                                          |
 | SECC_ENFORCE_TLS  | `False`                                                      | Whether or not the SECC will enforce a TLS connection                                                                                                           |
 | PKI_PATH          | `<CWD>/iso15118/shared/pki/`                                 | Path for the location of the PKI where the certificates are located. By default, the system will look for the PKI directory under the current working directory |
@@ -250,3 +250,61 @@ limitations under the License.
 [^4]: https://exificient.github.io/
 [^5]: https://docs.docker.com/network/host/
 [^6]: https://docs.docker.com/desktop/mac/networking/
+
+## ISO 15118 Fuzzing Setup Guide
+
+Here we use a debian based system as example.
+
+### 1. Install System Dependencies
+
+```bash
+sudo apt update
+sudo apt install -y default-jre openjdk-17-jre clang python3.11-dev
+wget https://apt.llvm.org/llvm.sh
+sudo bash ./llvm.sh 18
+```
+
+### 2. Clone Repositories
+
+```bash
+mkdir -p ~/iso15118
+cd ~/iso15118
+git clone https://github.com/iso15118-fuzz/iso15118.git
+git clone https://github.com/iso15118-fuzz/atheris.git
+```
+
+### 3. Set Up Python Environment
+
+```bash
+cd ~/iso15118/iso15118
+pipx install poetry
+poetry env use python3.11
+poetry install
+```
+
+### 4. Build Modified Atheris and Install to iso15118 Environment
+
+```bash
+cd ~/iso15118/atheris
+CLANG_BIN=/usr/bin/clang-18 pip install -e .
+```
+
+### 5. Generate Test Certificates
+
+```bash
+cd ~/iso15118/iso15118/iso15118/shared/pki
+chmod +x create_certs.sh
+./create_certs.sh -v iso-2   # For ISO 15118-2
+./create_certs.sh -v iso-20  # For ISO 15118-20
+```
+
+### 6. Run Fuzzer
+
+```bash
+cd ~/iso15118/iso15118
+poetry shell
+# Single test run (debugging)
+python3 iso15118/fuzzer/main.py --run_once
+# Full fuzzing campaign with coverage (recommended)
+python3 -m coverage run iso15118/fuzzer/main.py -atheris_runs=100000 -seed=15118 2>&1 | tee fuzz.log
+```
